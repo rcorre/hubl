@@ -1,4 +1,5 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
+use base64::prelude::*;
 use clap::Parser;
 use core::str;
 use serde::Deserialize;
@@ -11,6 +12,7 @@ struct SearchRepository {
 
 #[derive(Debug, Deserialize)]
 struct SearchItem {
+    url: String,
     path: String,
     repository: SearchRepository,
 }
@@ -20,10 +22,57 @@ struct SearchResponse {
     items: Vec<SearchItem>,
 }
 
+#[derive(Debug, Deserialize)]
+struct ContentResponse {
+    content: String,
+}
+
 impl SkimItem for SearchItem {
     fn text(&self) -> Cow<str> {
         format!("{}: {}", self.repository.full_name, self.path).into()
     }
+}
+
+async fn item_preview(item: &SearchItem) -> Result<Vec<AnsiString<'static>>> {
+    let client = reqwest::Client::new();
+    let req = client
+        .request(reqwest::Method::GET, &item.url)
+        .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
+        .build()?;
+    let content: ContentResponse = client.execute(req).await?.json().await?;
+    let text = match BASE64_STANDARD.decode(content.content.replace("\n", "")) {
+        Ok(s) => String::from_utf8(s).unwrap(),
+        Err(e) => e.to_string(),
+    };
+    let lines = text.lines().map(|l| l.to_owned().into()).collect();
+    Ok(lines)
+}
+
+#[tokio::main]
+async fn preview(items: Vec<Arc<dyn SkimItem>>) -> Vec<AnsiString<'static>> {
+    // items
+    //     .iter()
+    //     .map(|x| {
+    //         (**x)
+    //             .as_any()
+    //             .downcast_ref::<SearchItem>()
+    //             .unwrap()
+    //             .url
+    //             .clone()
+    //             .into()
+    //     })
+    //     .collect()
+
+    let Some(item) = items.first() else {
+        return vec![];
+    };
+    let item = (**item).as_any().downcast_ref::<SearchItem>().unwrap();
+
+    let lines = match item_preview(item).await {
+        Ok(lines) => lines,
+        Err(err) => vec![err.to_string().into()],
+    };
+    lines
 }
 
 fn get_auth_token() -> Result<String> {
@@ -68,6 +117,7 @@ async fn main() -> Result<()> {
     let options = SkimOptionsBuilder::default()
         .height(String::from("50%"))
         .multi(true)
+        .preview_fn(Some(preview.into()))
         .build()
         .unwrap();
 
