@@ -1,0 +1,68 @@
+use anyhow::Result;
+use serde::Deserialize;
+
+pub struct Github {
+    token: String,
+    client: reqwest::Client,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SearchRepository {
+    full_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SearchItem {
+    url: String,
+    path: String,
+    repository: SearchRepository,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SearchResponse {
+    items: Vec<SearchItem>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ContentResponse {
+    content: String,
+}
+
+impl Github {
+    pub fn new(token: String) -> Github {
+        Self {
+            token,
+            client: reqwest::Client::new(),
+        }
+    }
+
+    pub async fn search_code(&self, term: &str) -> Result<SearchResponse> {
+        let req = self
+            .client
+            .request(reqwest::Method::GET, "https://api.github.com/search/code")
+            .query(&[("q", term)])
+            .bearer_auth(&self.token)
+            .header(
+                reqwest::header::ACCEPT,
+                "application/vnd.github.v3.text-match+json",
+            )
+            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
+            .build()?;
+        log::debug!("sending request: {req:?}");
+        let resp: SearchResponse = self.client.execute(req).await?.json().await?;
+        Ok(resp)
+    }
+
+    pub async fn get_item_content(item: &SearchItem) -> Result<String> {
+        use base64::prelude::*;
+
+        let client = reqwest::Client::new();
+        let req = client
+            .request(reqwest::Method::GET, &item.url)
+            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
+            .build()?;
+        let content: ContentResponse = client.execute(req).await?.json().await?;
+        let data = BASE64_STANDARD.decode(content.content.replace("\n", ""))?;
+        Ok(String::from_utf8(data)?)
+    }
+}
