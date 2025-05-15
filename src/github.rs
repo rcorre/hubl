@@ -8,24 +8,24 @@ pub struct Github {
 
 #[derive(Debug, Deserialize)]
 pub struct SearchRepository {
-    full_name: String,
+    pub full_name: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct SearchItem {
-    url: String,
-    path: String,
-    repository: SearchRepository,
+    pub url: String,
+    pub path: String,
+    pub repository: SearchRepository,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct SearchResponse {
-    items: Vec<SearchItem>,
+    pub items: Vec<SearchItem>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct ContentResponse {
-    content: String,
+    pub content: String,
 }
 
 impl Github {
