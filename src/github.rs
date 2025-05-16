@@ -1,5 +1,6 @@
 use anyhow::Result;
 use serde::Deserialize;
+use tracing;
 
 pub struct Github {
     token: String,
@@ -48,8 +49,10 @@ impl Github {
             )
             .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
             .build()?;
-        log::debug!("sending request: {req:?}");
-        let resp: SearchResponse = self.client.execute(req).await?.json().await?;
+        tracing::debug!("sending request: {req:?}");
+        let resp = self.client.execute(req).await?;
+        tracing::trace!("got response: {resp:?}");
+        let resp: SearchResponse = resp.json().await?;
         Ok(resp)
     }
 

@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{self, Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
+use futures::{FutureExt, StreamExt};
 use hubl::github::{Github, SearchItem, SearchResponse};
 use nucleo::Nucleo;
 use ratatui::{
@@ -15,11 +16,13 @@ use ratatui::{
 use serde::Deserialize;
 use std::io;
 use std::sync::Arc;
+use tracing_error::ErrorLayer;
+use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _, Layer as _};
 
 fn get_auth_token() -> Result<String> {
     let mut cmd = std::process::Command::new("gh");
     cmd.args(["auth", "token"]);
-    log::debug!("executing auth command: {cmd:?}");
+    tracing::debug!("executing auth command: {cmd:?}");
     let output = cmd.output()?;
     Ok(core::str::from_utf8(&output.stdout)?.trim().to_string())
 }
@@ -31,11 +34,8 @@ struct Cli {
     query: String,
 }
 
-fn redraw() {}
-
 // #[tokio::main]
 // async fn main() -> Result<()> {
-//     env_logger::init();
 
 //     // let cli = Cli::parse();
 
@@ -77,6 +77,7 @@ fn redraw() {}
 
 pub struct App {
     github: Github,
+    event_stream: EventStream,
     exit: bool,
     search_response: SearchResponse,
     list_state: ListState,
@@ -85,7 +86,6 @@ pub struct App {
 impl App {
     pub async fn new(github: Github) -> Self {
         Self {
-            exit: false,
             // search_response: github.search_code("foo").await.unwrap(),
             search_response: SearchResponse {
                 items: vec![
@@ -106,15 +106,19 @@ impl App {
                 ],
             },
             github,
+            event_stream: EventStream::default(),
+            exit: false,
             list_state: ListState::default().with_selected(Some(0)),
         }
     }
 
     /// runs the application's main loop until the user quits
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+    pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
+            tracing::trace!("Drawing");
             terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
+            tracing::trace!("Awaiting event");
+            self.handle_events().await?;
         }
         Ok(())
     }
@@ -140,15 +144,21 @@ impl App {
     }
 
     /// updates the application's state based on user input
-    fn handle_events(&mut self) -> io::Result<()> {
-        match event::read()? {
-            // it's important to check that the event is a key press event as
-            // crossterm also emits key release and repeat events on Windows.
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                self.handle_key_event(key_event)
+    async fn handle_events(&mut self) -> Result<()> {
+        tokio::select! {
+            event = self.event_stream.next().fuse() => {
+                let event = event.unwrap()?;
+                match event {
+                    Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                        self.handle_key_event(key_event)
+                    }
+                    _ => {}
+                };
+            },
+            resp = self.github.search_code("foo").fuse() => {
+                self.search_response = resp?;
             }
-            _ => {}
-        };
+        }
         Ok(())
     }
 
@@ -166,11 +176,30 @@ impl App {
     }
 }
 
+pub fn initialize_logging() -> Result<()> {
+    let xdg_dirs = xdg::BaseDirectories::with_prefix(env!("CARGO_PKG_NAME"));
+    let log_path = xdg_dirs.place_cache_file("log.txt")?;
+    let log_file = std::fs::File::create(log_path)?;
+    let file_subscriber = tracing_subscriber::fmt::layer()
+        .with_file(true)
+        .with_line_number(true)
+        .with_writer(log_file)
+        .with_target(false)
+        .with_ansi(false)
+        .with_filter(tracing_subscriber::filter::EnvFilter::from_default_env());
+    tracing_subscriber::registry()
+        .with(file_subscriber)
+        .with(ErrorLayer::default())
+        .init();
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    initialize_logging()?;
     let mut terminal = ratatui::init();
     let github = Github::new(get_auth_token()?);
-    let app_result = App::new(github).await.run(&mut terminal);
+    let app_result = App::new(github).await.run(&mut terminal).await;
     ratatui::restore();
     Ok(app_result?)
 }

@@ -6,12 +6,15 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 clap = { version = "4.5.31", features = ["derive"] }
-env_logger = "0.11.6"
-log = "0.4.26"
 reqwest = { version = "0.12.12", features = ["json"] }
 nucleo = "0.5.0"
 anyhow = "1.0.96"
 serde = { version = "1.0.218", features = ["derive"] }
 base64 = "0.22.1"
 ratatui = "0.29"
-crossterm = "0.28"
+crossterm = { version = "0.28", features = ["event-stream"] }
+futures = "0.3.31"
+tracing-error = "0.2.1"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+xdg = "3.0.0"
