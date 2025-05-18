@@ -37,11 +37,17 @@ impl Github {
         }
     }
 
-    pub async fn search_code(&self, term: &str) -> Result<SearchResponse> {
+    // page should start at 1
+    pub async fn search_code(&self, term: &str, page: usize) -> Result<SearchResponse> {
+        // TODO: check x-ratelimit-remaining header
         let req = self
             .client
             .request(reqwest::Method::GET, "https://api.github.com/search/code")
-            .query(&[("q", term)])
+            .query(&[
+                ("q", term),
+                ("page", &page.to_string()),
+                ("per_page", "100"),
+            ])
             .bearer_auth(&self.token)
             .header(
                 reqwest::header::ACCEPT,

@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use crossterm::event::{self, Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
-use futures::{FutureExt, StreamExt};
+use futures::{FutureExt as _, StreamExt as _};
 use hubl::github::{Github, SearchItem, SearchResponse};
 use nucleo::Nucleo;
 use ratatui::{
@@ -16,6 +16,7 @@ use ratatui::{
 use serde::Deserialize;
 use std::io;
 use std::sync::Arc;
+use tokio::sync::mpsc::{self, Receiver};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _, Layer as _};
 
@@ -76,36 +77,29 @@ struct Cli {
 // }
 
 pub struct App {
-    github: Github,
     event_stream: EventStream,
     exit: bool,
     search_response: SearchResponse,
     list_state: ListState,
+    search_recv: Receiver<Result<SearchResponse>>,
 }
 
 impl App {
     pub async fn new(github: Github) -> Self {
+        let (tx, rx) = mpsc::channel(1);
+        tokio::spawn(async move {
+            for page in 1..5 {
+                tracing::debug!("Starting search task");
+                let res = github.search_code("foo", page).await;
+                tracing::debug!("Sending search result");
+                tx.send(res).await?;
+            }
+            Result::<()>::Ok(())
+        });
         Self {
             // search_response: github.search_code("foo").await.unwrap(),
-            search_response: SearchResponse {
-                items: vec![
-                    SearchItem {
-                        url: "".into(),
-                        path: "foo".into(),
-                        repository: hubl::github::SearchRepository {
-                            full_name: "".into(),
-                        },
-                    },
-                    SearchItem {
-                        url: "".into(),
-                        path: "bar".into(),
-                        repository: hubl::github::SearchRepository {
-                            full_name: "".into(),
-                        },
-                    },
-                ],
-            },
-            github,
+            search_response: SearchResponse { items: vec![] },
+            search_recv: rx,
             event_stream: EventStream::default(),
             exit: false,
             list_state: ListState::default().with_selected(Some(0)),
@@ -155,10 +149,20 @@ impl App {
                     _ => {}
                 };
             },
-            resp = self.github.search_code("foo").fuse() => {
-                self.search_response = resp?;
+            res = self.search_recv.recv() => {
+                self.process_search_result(res)?;
             }
         }
+        Ok(())
+    }
+
+    fn process_search_result(&mut self, res: Option<Result<SearchResponse>>) -> Result<()> {
+        let Some(res) = res else {
+            return Ok(());
+        };
+
+        let mut res = res?;
+        self.search_response.items.append(&mut res.items);
         Ok(())
     }
 
