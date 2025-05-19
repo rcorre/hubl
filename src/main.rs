@@ -81,25 +81,15 @@ pub struct App {
     exit: bool,
     search_response: SearchResponse,
     list_state: ListState,
-    search_recv: Receiver<Result<SearchResponse>>,
+    search_recv: Receiver<SearchResponse>,
 }
 
 impl App {
     pub async fn new(github: Github) -> Self {
-        let (tx, rx) = mpsc::channel(1);
-        tokio::spawn(async move {
-            for page in 1..5 {
-                tracing::debug!("Starting search task");
-                let res = github.search_code("foo", page).await;
-                tracing::debug!("Sending search result");
-                tx.send(res).await?;
-            }
-            Result::<()>::Ok(())
-        });
         Self {
             // search_response: github.search_code("foo").await.unwrap(),
             search_response: SearchResponse { items: vec![] },
-            search_recv: rx,
+            search_recv: github.search_code("foo"),
             event_stream: EventStream::default(),
             exit: false,
             list_state: ListState::default().with_selected(Some(0)),
@@ -156,12 +146,11 @@ impl App {
         Ok(())
     }
 
-    fn process_search_result(&mut self, res: Option<Result<SearchResponse>>) -> Result<()> {
-        let Some(res) = res else {
+    fn process_search_result(&mut self, res: Option<SearchResponse>) -> Result<()> {
+        let Some(mut res) = res else {
             return Ok(());
         };
 
-        let mut res = res?;
         self.search_response.items.append(&mut res.items);
         Ok(())
     }
