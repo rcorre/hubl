@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "url": "example.com/baz",
+      "path": "baz.txt",
+      "repository": {
+        "full_name": "bazrepo"
+      }
+    },
+    {
+      "url": "example.com/biz",
+      "path": "biz.txt",
+      "repository": {
+        "full_name": "bizrepo"
+      }
+    }
+  ]
+}

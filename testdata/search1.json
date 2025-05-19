@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "url": "example.com/foo",
+      "path": "foo.txt",
+      "repository": {
+        "full_name": "foorepo"
+      }
+    },
+    {
+      "url": "example.com/bar",
+      "path": "bar.txt",
+      "repository": {
+        "full_name": "barrepo"
+      }
+    }
+  ]
+}

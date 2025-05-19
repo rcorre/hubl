@@ -191,8 +191,8 @@ pub fn initialize_logging() -> Result<()> {
 async fn main() -> Result<()> {
     initialize_logging()?;
     let mut terminal = ratatui::init();
-    let github = Github::new(get_auth_token()?);
+    let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
     let app_result = App::new(github).await.run(&mut terminal).await;
     ratatui::restore();
-    Ok(app_result?)
+    app_result
 }
