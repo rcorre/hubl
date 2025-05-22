@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
+use base64::prelude::*;
 use serde::Deserialize;
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing;
 
 #[derive(Clone)]
@@ -27,45 +28,73 @@ pub struct SearchResponse {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct ContentResponse {
+struct ContentResponse {
     pub content: String,
+}
+
+// If the ratelimit is consumed, await until it is cleared
+// Returns true if we were rate limited.
+async fn await_rate_limit(resp: &reqwest::Response) -> Result<bool> {
+    let ratelimit_remaining = resp
+        .headers()
+        .get("x-ratelimit-remaining")
+        .context("missing x-ratelimit-remaining header")?
+        .to_str()
+        .context("parsing x-ratelimit-remaining header: {remaining}")?
+        .parse::<usize>()
+        .context("parsing x-ratelimit-remaining header: {remaining}")?;
+
+    tracing::debug!("ratelimit remaining: {ratelimit_remaining}");
+
+    if ratelimit_remaining == 0 {
+        let reset = resp
+            .headers()
+            .get("x-ratelimit-reset")
+            .context("missing x-ratelimit-reset header")?
+            .to_str()
+            .context("parsing x-ratelimit-remaining header: {remaining}")?
+            .parse::<u64>()
+            .context("parsing x-ratelimit-remaining header: {remaining}")?;
+
+        let reset = std::time::UNIX_EPOCH + std::time::Duration::from_secs(reset);
+        let duration = reset.elapsed().unwrap_or_default();
+        tracing::info!("ratelimit consumed, waiting {duration:?} until {reset:?}");
+        tokio::time::sleep(duration).await;
+        return Ok(true);
+    }
+
+    Ok(false)
 }
 
 async fn search_code_task(github: Github, term: String, tx: Sender<SearchResponse>) -> Result<()> {
     tracing::debug!("starting code search task: {term}");
     let client = reqwest::Client::new();
-    let mut page = 1;
     let url = github.host + "/search/code";
 
-    loop {
+    // Stop at page 100 just as an arbitrary safeguard, don't want infinite results
+    for page in 1..=100 {
         let req = client
             .request(reqwest::Method::GET, &url)
+            .bearer_auth(&github.token)
+            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
             .query(&[
                 ("q", term.as_str()),
                 ("page", page.to_string().as_str()),
                 ("per_page", "100"),
             ])
-            .bearer_auth(&github.token)
             .header(
                 reqwest::header::ACCEPT,
                 "application/vnd.github.v3.text-match+json",
             )
-            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
             .build()?;
         tracing::debug!("sending request: {req:?}");
+
         let resp = client.execute(req).await?;
         tracing::trace!("got response: {resp:?}");
 
-        let ratelimit_remaining = resp
-            .headers()
-            .get("x-ratelimit-remaining")
-            .context("missing x-ratelimit-remaining header")?
-            .to_str()
-            .context("parsing x-ratelimit-remaining header: {remaining}")?
-            .parse::<usize>()
-            .context("parsing x-ratelimit-remaining header: {remaining}")?;
-
-        tracing::debug!("ratelimit remaining: {ratelimit_remaining}");
+        if await_rate_limit(&resp).await? {
+            continue;
+        }
 
         let results: SearchResponse = resp.json().await?;
 
@@ -76,42 +105,86 @@ async fn search_code_task(github: Github, term: String, tx: Sender<SearchRespons
 
         tracing::trace!("sending response: {results:?}");
         tx.send(results).await?;
+    }
+    Ok(())
+}
 
-        if ratelimit_remaining == 0 {
-            // TODO: check x-ratelimit-reset, wait until we can query again
-            tracing::info!("ratelimit consumed, ending code search");
+async fn item_content_task(
+    github: Github,
+    mut rx: Receiver<String>,     // receives URL to look up
+    tx: Sender<(String, String)>, // sends (URL, content)
+) -> Result<()> {
+    tracing::debug!("starting item content task");
+    let client = reqwest::Client::new();
+
+    loop {
+        tracing::debug!("awaiting item content request");
+        let Some(url) = rx.recv().await else {
+            tracing::debug!("item content channel closed");
             return Ok(());
+        };
+
+        let req = client
+            .request(reqwest::Method::GET, &url)
+            .bearer_auth(&github.token)
+            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
+            .build()?;
+        tracing::debug!("sending request: {req:?}");
+
+        let resp = client.execute(req).await?;
+        tracing::trace!("got response: {resp:?}");
+
+        if await_rate_limit(&resp).await? {
+            continue;
         }
 
-        page += 1;
+        let content: ContentResponse = resp.json().await?;
+        let data = BASE64_STANDARD.decode(content.content.replace("\n", ""))?;
+        let body = String::from_utf8(data)?;
+
+        tracing::trace!("sending response for url {url}: {body}");
+        tx.send((url, body)).await?;
     }
 }
 
 impl Github {
-    pub fn new(host: String, token: String) -> Github {
+    pub fn new(host: String, token: String) -> Self {
         Self { host, token }
     }
 
     pub fn search_code(&self, term: &str) -> Receiver<SearchResponse> {
         tracing::debug!("starting code search: {term}");
-        let (tx, rx) = tokio::sync::mpsc::channel(8);
+        let (tx, rx) = mpsc::channel(8);
         let github = self.clone();
         let term = term.to_string();
         tokio::spawn(async move { search_code_task(github, term, tx).await.unwrap() });
         rx
     }
+}
 
-    pub async fn get_item_content(item: &SearchItem) -> Result<String> {
-        use base64::prelude::*;
+pub struct ContentClient {
+    pub tx: Sender<String>,             // Sends URL
+    pub rx: Receiver<(String, String)>, // Receives (URL, Content)
+}
 
-        let client = reqwest::Client::new();
-        let req = client
-            .request(reqwest::Method::GET, &item.url)
-            .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
-            .build()?;
-        let content: ContentResponse = client.execute(req).await?.json().await?;
-        let data = BASE64_STANDARD.decode(content.content.replace("\n", ""))?;
-        Ok(String::from_utf8(data)?)
+impl ContentClient {
+    pub fn new(github: Github) -> Self {
+        let (req_tx, req_rx) = mpsc::channel(32);
+        let (res_tx, res_rx) = mpsc::channel(32);
+
+        tokio::spawn(async move { item_content_task(github, req_rx, res_tx).await.unwrap() });
+        Self {
+            tx: req_tx,
+            rx: res_rx,
+        }
+    }
+
+    pub async fn get_content(&self, url: impl Into<String>) -> Result<()> {
+        Ok(self.tx.send(url.into()).await?)
+    }
+
+    pub async fn recv_content(&mut self) -> Option<(String, String)> {
+        self.rx.recv().await
     }
 }
 
@@ -201,15 +274,20 @@ mod tests {
     async fn test_search_code_ratelimit() {
         let server = TestServer::new().unwrap();
 
-        server
-            .create_resource("/search/code")
-            .status(Status::OK)
-            .method(Method::GET)
-            .header("x-ratelimit-remaining", "0")
-            .query("page", "1")
-            .query("per_page", "100")
-            .query("q", "foo")
-            .body_fn(move |_| std::fs::read_to_string("testdata/search1.json").unwrap());
+        for i in 1..4 {
+            let resource = server.create_resource("/search/code");
+            resource
+                .status(Status::OK)
+                .method(Method::GET)
+                .header("x-ratelimit-remaining", "0")
+                .header("x-ratelimit-reset", "0")
+                .query("page", &i.to_string())
+                .query("per_page", "100")
+                .query("q", "foo")
+                .body_fn(move |_| {
+                    std::fs::read_to_string(format!("testdata/search{i}.json")).unwrap()
+                });
+        }
 
         let github = Github::new(
             format!("http://localhost:{}", server.port()),
@@ -240,7 +318,69 @@ mod tests {
         };
         assert_eq!(res, expected);
 
-        // ratelimit reached, should close
+        // page 2
+        let res = rx.recv().await.unwrap();
+        let expected = SearchResponse {
+            items: vec![
+                SearchItem {
+                    url: "example.com/baz".into(),
+                    path: "baz.txt".into(),
+                    repository: SearchRepository {
+                        full_name: "bazrepo".into(),
+                    },
+                },
+                SearchItem {
+                    url: "example.com/biz".into(),
+                    path: "biz.txt".into(),
+                    repository: SearchRepository {
+                        full_name: "bizrepo".into(),
+                    },
+                },
+            ],
+        };
+        assert_eq!(res, expected);
+
+        // all pages done, should close
         assert!(rx.recv().await.is_none());
+    }
+
+    #[tracing_test::traced_test]
+    #[tokio::test]
+    async fn test_get_content() {
+        let server = TestServer::new().unwrap();
+
+        for i in 1..4 {
+            let resource = server.create_resource(&format!("/content/foo{i}"));
+            resource
+                .status(Status::OK)
+                .method(Method::GET)
+                .header("x-ratelimit-remaining", "10")
+                .body_fn(move |_| {
+                    format!(
+                        r#"{{"content": "{}"}}"#,
+                        BASE64_STANDARD.encode(format!("body{i}"))
+                    )
+                });
+        }
+
+        let host = format!("http://localhost:{}", server.port());
+        let github = Github::new(host.clone(), "token".to_string());
+
+        let mut content_client = ContentClient::new(github);
+
+        let url = format!("{host}/content/foo1");
+        content_client.get_content(&url).await.unwrap();
+        let res = content_client.recv_content().await.unwrap();
+        assert_eq!(res, (url, "body1".to_string()));
+
+        let url = format!("{host}/content/foo2");
+        content_client.get_content(&url).await.unwrap();
+        let res = content_client.recv_content().await.unwrap();
+        assert_eq!(res, (url, "body2".to_string()));
+
+        let url = format!("{host}/content/foo3");
+        content_client.get_content(&url).await.unwrap();
+        let res = content_client.recv_content().await.unwrap();
+        assert_eq!(res, (url, "body3".to_string()));
     }
 }

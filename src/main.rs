@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use crossterm::event::{self, Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{FutureExt as _, StreamExt as _};
-use hubl::github::{Github, SearchItem, SearchResponse};
+use hubl::github::{ContentClient, Github, SearchItem, SearchResponse};
 use nucleo::Nucleo;
 use ratatui::{
     buffer::Buffer,
@@ -14,8 +14,8 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use serde::Deserialize;
-use std::io;
-use std::sync::Arc;
+use std::{collections::hash_map::Entry, sync::Arc};
+use std::{collections::HashMap, io};
 use tokio::sync::mpsc::{self, Receiver};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _, Layer as _};
@@ -82,32 +82,45 @@ pub struct App {
     search_response: SearchResponse,
     list_state: ListState,
     search_recv: Receiver<SearchResponse>,
+    content_client: ContentClient,
+    content_cache: HashMap<String, String>, // url->content
 }
 
 impl App {
     pub async fn new(github: Github) -> Self {
         Self {
-            // search_response: github.search_code("foo").await.unwrap(),
             search_response: SearchResponse { items: vec![] },
             search_recv: github.search_code("foo"),
             event_stream: EventStream::default(),
             exit: false,
             list_state: ListState::default().with_selected(Some(0)),
+            content_client: ContentClient::new(github),
+            content_cache: HashMap::new(),
         }
     }
 
     /// runs the application's main loop until the user quits
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
-            tracing::trace!("Drawing");
             terminal.draw(|frame| self.draw(frame))?;
-            tracing::trace!("Awaiting event");
             self.handle_events().await?;
         }
         Ok(())
     }
 
+    fn selected_item(&self) -> Option<&SearchItem> {
+        self.list_state
+            .selected()
+            .map(|idx| &self.search_response.items[idx])
+    }
+
     fn draw(&mut self, frame: &mut Frame) {
+        tracing::debug!("Drawing");
+        let layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+            .split(frame.area());
+
         let list = List::new(
             self.search_response
                 .items
@@ -118,19 +131,36 @@ impl App {
         .style(Style::new().white())
         .highlight_style(Style::new().italic())
         .highlight_symbol(">");
-
-        let layout = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(frame.area());
-
         frame.render_stateful_widget(list, layout[0], &mut self.list_state);
+
+        let Some(idx) = self.list_state.selected() else {
+            return;
+        };
+
+        let url = &self.search_response.items[idx].url;
+        let Some(content) = self.content_cache.get(url) else {
+            return;
+        };
+
+        let preview = Paragraph::new(content.as_str());
+        frame.render_widget(preview, layout[1]);
     }
 
     /// updates the application's state based on user input
     async fn handle_events(&mut self) -> Result<()> {
+        tracing::trace!("Awaiting event");
+        if let Some(item) = self.selected_item() {
+            let url = item.url.clone();
+            // First time selecting this item, insert a placeholder and request content
+            if let Entry::Vacant(entry) = self.content_cache.entry(url.clone()) {
+                tracing::debug!("Requesting content for {url}");
+                entry.insert("<fetching...>".into());
+                self.content_client.get_content(url).await?;
+            }
+        }
         tokio::select! {
             event = self.event_stream.next().fuse() => {
+                tracing::debug!("Handling terminal event");
                 let event = event.unwrap()?;
                 match event {
                     Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
@@ -139,20 +169,26 @@ impl App {
                     _ => {}
                 };
             },
-            res = self.search_recv.recv() => {
+            Some(res) = self.search_recv.recv() => {
+                tracing::debug!("Handling search result event");
                 self.process_search_result(res)?;
+            }
+            Some((url, content)) = self.content_client.rx.recv() => {
+                tracing::debug!("Handling file content event");
+                self.process_content(url, content);
             }
         }
         Ok(())
     }
 
-    fn process_search_result(&mut self, res: Option<SearchResponse>) -> Result<()> {
-        let Some(mut res) = res else {
-            return Ok(());
-        };
-
+    fn process_search_result(&mut self, mut res: SearchResponse) -> Result<()> {
         self.search_response.items.append(&mut res.items);
         Ok(())
+    }
+
+    fn process_content(&mut self, url: String, content: String) {
+        tracing::debug!("Caching content for: {url}");
+        self.content_cache.insert(url, content);
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
