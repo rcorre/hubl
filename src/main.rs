@@ -87,10 +87,10 @@ pub struct App {
 }
 
 impl App {
-    pub async fn new(github: Github) -> Self {
+    pub async fn new(github: Github, query: &str) -> Self {
         Self {
             search_response: SearchResponse { items: vec![] },
-            search_recv: github.search_code("foo"),
+            search_recv: github.search_code(query),
             event_stream: EventStream::default(),
             exit: false,
             list_state: ListState::default().with_selected(Some(0)),
@@ -226,9 +226,10 @@ pub fn initialize_logging() -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
     initialize_logging()?;
+    let cli = Cli::parse();
     let mut terminal = ratatui::init();
     let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
-    let app_result = App::new(github).await.run(&mut terminal).await;
+    let app_result = App::new(github, &cli.query).await.run(&mut terminal).await;
     ratatui::restore();
     app_result
 }
