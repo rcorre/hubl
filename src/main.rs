@@ -1,21 +1,17 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use clap::Parser;
-use crossterm::event::{self, Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{FutureExt as _, StreamExt as _};
-use hubl::github::{ContentClient, Github, SearchItem, SearchResponse};
+use hubl::github::{ContentClient, Github, SearchItem};
 use nucleo::Nucleo;
 use ratatui::{
-    buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, List, ListDirection, ListState, Paragraph, StatefulWidget, Widget},
+    widgets::{Block, List, ListState, Paragraph},
     DefaultTerminal, Frame,
 };
-use serde::Deserialize;
+use std::collections::HashMap;
 use std::{collections::hash_map::Entry, sync::Arc};
-use std::{collections::HashMap, io};
 use tokio::sync::mpsc::{self, Receiver};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _, Layer as _};
@@ -35,73 +31,50 @@ struct Cli {
     query: String,
 }
 
-// #[tokio::main]
-// async fn main() -> Result<()> {
-
-//     // let cli = Cli::parse();
-
-//     // let token = get_auth_token()?;
-
-//     // let client = reqwest::Client::new();
-//     // let req = client
-//     //     .request(reqwest::Method::GET, "https://api.github.com/search/code")
-//     //     .query(&[("q", &cli.query)])
-//     //     .bearer_auth(token)
-//     //     .header(
-//     //         reqwest::header::ACCEPT,
-//     //         "application/vnd.github.v3.text-match+json",
-//     //     )
-//     //     .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
-//     //     .build()?;
-//     // log::debug!("sending request: {req:?}");
-//     // let resp: SearchResponse = client.execute(req).await?.json().await?;
-
-//     // log::trace!("response: {resp:?}");
-
-//     let mut nucleo = Nucleo::new(nucleo::Config::DEFAULT, Arc::new(redraw), None, 1);
-
-//     let injector = nucleo.injector();
-//     injector.push("foo", |item, columns| {});
-//     nucleo.tick(10);
-//     let snap = nucleo.snapshot();
-//     for item in snap.matched_items(0..snap.matched_item_count()) {
-//         eprintln!("{}", item.data);
-//     }
-
-//     // let input = "aaaaa\nbbbb\nccc".to_string();
-
-//     // for item in selected_items.iter() {
-//     //     println!("{}", item.output());
-//     // }
-//     Ok(())
-// }
-
 pub struct App {
     event_stream: EventStream,
     exit: bool,
-    search_response: SearchResponse,
     list_state: ListState,
-    search_recv: Receiver<SearchResponse>,
     content_client: ContentClient,
     content_cache: HashMap<String, String>, // url->content
+    nucleo: Nucleo<SearchItem>,
+    nucleo_rx: Receiver<()>,
 }
 
 impl App {
     pub async fn new(github: Github, query: &str) -> Self {
+        let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
+        let nucleo = Nucleo::new(
+            nucleo::Config::DEFAULT,
+            Arc::new(move || {
+                // if there's already a value in the channel, we've already got a pending redraw
+                let _ = nucleo_tx.try_send(());
+            }),
+            None,
+            1,
+        );
+        let injector = nucleo.injector();
+        github.search_code(
+            query,
+            Arc::new(move |result| {
+                injector.push(result, |_, _| {});
+            }),
+        );
         Self {
-            search_response: SearchResponse { items: vec![] },
-            search_recv: github.search_code(query),
             event_stream: EventStream::default(),
             exit: false,
             list_state: ListState::default().with_selected(Some(0)),
             content_client: ContentClient::new(github),
             content_cache: HashMap::new(),
+            nucleo,
+            nucleo_rx,
         }
     }
 
     /// runs the application's main loop until the user quits
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
+            self.nucleo.tick(10);
             terminal.draw(|frame| self.draw(frame))?;
             self.handle_events().await?;
         }
@@ -111,7 +84,12 @@ impl App {
     fn selected_item(&self) -> Option<&SearchItem> {
         self.list_state
             .selected()
-            .map(|idx| &self.search_response.items[idx])
+            .and_then(|idx| {
+                self.nucleo
+                    .snapshot()
+                    .get_matched_item(idx.try_into().unwrap())
+            })
+            .map(|item| item.data)
     }
 
     fn draw(&mut self, frame: &mut Frame) {
@@ -121,11 +99,10 @@ impl App {
             .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(frame.area());
 
+        let snap = self.nucleo.snapshot();
         let list = List::new(
-            self.search_response
-                .items
-                .iter()
-                .map(|item| item.path.as_str()),
+            snap.matched_items(0..snap.matched_item_count())
+                .map(|item| item.data.path.as_str()),
         )
         .block(Block::bordered().title("List"))
         .style(Style::new().white())
@@ -137,7 +114,10 @@ impl App {
             return;
         };
 
-        let url = &self.search_response.items[idx].url;
+        let Some(item) = snap.get_matched_item(idx.try_into().unwrap()) else {
+            return;
+        };
+        let url = &item.data.url;
         let Some(content) = self.content_cache.get(url) else {
             return;
         };
@@ -169,20 +149,14 @@ impl App {
                     _ => {}
                 };
             },
-            Some(res) = self.search_recv.recv() => {
-                tracing::debug!("Handling search result event");
-                self.process_search_result(res)?;
-            }
             Some((url, content)) = self.content_client.rx.recv() => {
                 tracing::debug!("Handling file content event");
                 self.process_content(url, content);
             }
+            Some(()) = self.nucleo_rx.recv() => {
+                tracing::debug!("Redrawing for nucleo update");
+            }
         }
-        Ok(())
-    }
-
-    fn process_search_result(&mut self, mut res: SearchResponse) -> Result<()> {
-        self.search_response.items.append(&mut res.items);
         Ok(())
     }
 

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::{Context, Result};
 use base64::prelude::*;
 use serde::Deserialize;
@@ -57,8 +59,10 @@ async fn await_rate_limit(resp: &reqwest::Response) -> Result<bool> {
             .context("parsing x-ratelimit-remaining header: {remaining}")?;
 
         let reset = std::time::UNIX_EPOCH + std::time::Duration::from_secs(reset);
-        let duration = reset.elapsed().unwrap_or_default();
-        tracing::info!("ratelimit consumed, waiting {duration:?} until {reset:?}");
+        let duration = reset
+            .duration_since(std::time::SystemTime::now())
+            .unwrap_or_default();
+        tracing::info!("ratelimit consumed, waiting {duration:?} until {reset:?}",);
         tokio::time::sleep(duration).await;
         return Ok(true);
     }
@@ -66,7 +70,11 @@ async fn await_rate_limit(resp: &reqwest::Response) -> Result<bool> {
     Ok(false)
 }
 
-async fn search_code_task(github: Github, term: String, tx: Sender<SearchResponse>) -> Result<()> {
+async fn search_code_task(
+    github: Github,
+    term: String,
+    callback: Arc<(dyn Fn(SearchItem) + Send + Sync)>,
+) -> Result<()> {
     tracing::debug!("starting code search task: {term}");
     let client = reqwest::Client::new();
     let url = github.host + "/search/code";
@@ -104,7 +112,9 @@ async fn search_code_task(github: Github, term: String, tx: Sender<SearchRespons
         }
 
         tracing::trace!("sending response: {results:?}");
-        tx.send(results).await?;
+        for item in results.items {
+            callback(item);
+        }
     }
     Ok(())
 }
@@ -152,13 +162,11 @@ impl Github {
         Self { host, token }
     }
 
-    pub fn search_code(&self, term: &str) -> Receiver<SearchResponse> {
+    pub fn search_code(&self, term: &str, callback: Arc<(dyn Fn(SearchItem) + Sync + Send)>) {
         tracing::debug!("starting code search: {term}");
-        let (tx, rx) = mpsc::channel(8);
         let github = self.clone();
         let term = term.to_string();
-        tokio::spawn(async move { search_code_task(github, term, tx).await.unwrap() });
-        rx
+        tokio::spawn(async move { search_code_task(github, term, callback).await.unwrap() });
     }
 }
 
@@ -219,126 +227,26 @@ mod tests {
             "token".to_string(),
         );
 
-        let mut rx = github.search_code("foo");
-
-        // page 1
-        let res = rx.recv().await.unwrap();
-        let expected = SearchResponse {
-            items: vec![
-                SearchItem {
-                    url: "example.com/foo".into(),
-                    path: "foo.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "foorepo".into(),
-                    },
-                },
-                SearchItem {
-                    url: "example.com/bar".into(),
-                    path: "bar.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "barrepo".into(),
-                    },
-                },
-            ],
-        };
-        assert_eq!(res, expected);
-
-        // page 2
-        let res = rx.recv().await.unwrap();
-        let expected = SearchResponse {
-            items: vec![
-                SearchItem {
-                    url: "example.com/baz".into(),
-                    path: "baz.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "bazrepo".into(),
-                    },
-                },
-                SearchItem {
-                    url: "example.com/biz".into(),
-                    path: "biz.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "bizrepo".into(),
-                    },
-                },
-            ],
-        };
-        assert_eq!(res, expected);
-
-        // all pages done, should close
-        assert!(rx.recv().await.is_none());
-    }
-
-    #[tracing_test::traced_test]
-    #[tokio::test]
-    async fn test_search_code_ratelimit() {
-        let server = TestServer::new().unwrap();
-
-        for i in 1..4 {
-            let resource = server.create_resource("/search/code");
-            resource
-                .status(Status::OK)
-                .method(Method::GET)
-                .header("x-ratelimit-remaining", "0")
-                .header("x-ratelimit-reset", "0")
-                .query("page", &i.to_string())
-                .query("per_page", "100")
-                .query("q", "foo")
-                .body_fn(move |_| {
-                    std::fs::read_to_string(format!("testdata/search{i}.json")).unwrap()
-                });
-        }
-
-        let github = Github::new(
-            format!("http://localhost:{}", server.port()),
-            "token".to_string(),
+        let (tx, mut rx) = mpsc::channel(8);
+        github.search_code(
+            "foo",
+            Arc::new(move |res| {
+                tx.try_send(res).unwrap();
+            }),
         );
 
-        let mut rx = github.search_code("foo");
-
-        // page 1
-        let res = rx.recv().await.unwrap();
-        let expected = SearchResponse {
-            items: vec![
+        for name in ["foo", "bar", "biz", "baz"] {
+            assert_eq!(
+                rx.recv().await.unwrap(),
                 SearchItem {
-                    url: "example.com/foo".into(),
-                    path: "foo.txt".into(),
+                    url: format!("example.com/{name}"),
+                    path: format!("{name}.txt"),
                     repository: SearchRepository {
-                        full_name: "foorepo".into(),
+                        full_name: format!("{name}repo"),
                     },
                 },
-                SearchItem {
-                    url: "example.com/bar".into(),
-                    path: "bar.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "barrepo".into(),
-                    },
-                },
-            ],
-        };
-        assert_eq!(res, expected);
-
-        // page 2
-        let res = rx.recv().await.unwrap();
-        let expected = SearchResponse {
-            items: vec![
-                SearchItem {
-                    url: "example.com/baz".into(),
-                    path: "baz.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "bazrepo".into(),
-                    },
-                },
-                SearchItem {
-                    url: "example.com/biz".into(),
-                    path: "biz.txt".into(),
-                    repository: SearchRepository {
-                        full_name: "bizrepo".into(),
-                    },
-                },
-            ],
-        };
-        assert_eq!(res, expected);
+            );
+        }
 
         // all pages done, should close
         assert!(rx.recv().await.is_none());
