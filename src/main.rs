@@ -7,7 +7,7 @@ use nucleo::Nucleo;
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
-    widgets::{Block, Paragraph, Row, Table, TableState},
+    widgets::{Block, Borders, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use std::collections::HashMap;
@@ -99,6 +99,14 @@ impl App {
             .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(frame.area());
 
+        let input_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Length(3), Constraint::Fill(1)])
+            .split(layout[0]);
+
+        let input = Paragraph::new("input").block(Block::bordered().borders(Borders::BOTTOM));
+        frame.render_widget(input, input_layout[0]);
+
         let snap = self.nucleo.snapshot();
         let table = Table::new(
             snap.matched_items(0..snap.matched_item_count())
@@ -110,11 +118,12 @@ impl App {
                 }),
             &[Constraint::Max(32), Constraint::Fill(1)],
         )
-        .block(Block::bordered())
         .row_highlight_style(Style::new().italic())
         .highlight_symbol(">");
 
-        frame.render_stateful_widget(table, layout[0], &mut self.table_state);
+        frame.render_stateful_widget(table, input_layout[1], &mut self.table_state);
+
+        frame.render_widget(Block::bordered(), layout[0]);
 
         let idx = match self.table_state.selected() {
             Some(idx) => idx,

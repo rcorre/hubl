@@ -79,8 +79,8 @@ async fn search_code_task(
     let client = reqwest::Client::new();
     let url = github.host + "/search/code";
 
-    // Stop at page 100 just as an arbitrary safeguard, don't want infinite results
-    for page in 1..=100 {
+    // TODO: configure max pages
+    for page in 1..=1 {
         let req = client
             .request(reqwest::Method::GET, &url)
             .bearer_auth(&github.token)
