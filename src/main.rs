@@ -7,7 +7,7 @@ use nucleo::Nucleo;
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
-    widgets::{Block, List, ListState, Paragraph},
+    widgets::{Block, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use std::collections::HashMap;
@@ -34,7 +34,7 @@ struct Cli {
 pub struct App {
     event_stream: EventStream,
     exit: bool,
-    list_state: ListState,
+    table_state: TableState,
     content_client: ContentClient,
     content_cache: HashMap<String, String>, // url->content
     nucleo: Nucleo<SearchItem>,
@@ -63,7 +63,7 @@ impl App {
         Self {
             event_stream: EventStream::default(),
             exit: false,
-            list_state: ListState::default().with_selected(Some(0)),
+            table_state: TableState::default().with_selected(Some(0)),
             content_client: ContentClient::new(github),
             content_cache: HashMap::new(),
             nucleo,
@@ -82,7 +82,7 @@ impl App {
     }
 
     fn selected_item(&self) -> Option<&SearchItem> {
-        self.list_state
+        self.table_state
             .selected()
             .and_then(|idx| {
                 self.nucleo
@@ -100,18 +100,28 @@ impl App {
             .split(frame.area());
 
         let snap = self.nucleo.snapshot();
-        let list = List::new(
+        let table = Table::new(
             snap.matched_items(0..snap.matched_item_count())
-                .map(|item| item.data.path.as_str()),
+                .map(|item| {
+                    Row::new(vec![
+                        item.data.repository.full_name.as_str(),
+                        item.data.path.as_str(),
+                    ])
+                }),
+            &[Constraint::Max(32), Constraint::Fill(1)],
         )
-        .block(Block::bordered().title("List"))
-        .style(Style::new().white())
-        .highlight_style(Style::new().italic())
+        .block(Block::bordered())
+        .row_highlight_style(Style::new().italic())
         .highlight_symbol(">");
-        frame.render_stateful_widget(list, layout[0], &mut self.list_state);
 
-        let Some(idx) = self.list_state.selected() else {
-            return;
+        frame.render_stateful_widget(table, layout[0], &mut self.table_state);
+
+        let idx = match self.table_state.selected() {
+            Some(idx) => idx,
+            None => {
+                self.table_state.select(Some(0));
+                0
+            }
         };
 
         let Some(item) = snap.get_matched_item(idx.try_into().unwrap()) else {
@@ -122,7 +132,7 @@ impl App {
             return;
         };
 
-        let preview = Paragraph::new(content.as_str());
+        let preview = Paragraph::new(content.as_str()).block(Block::bordered());
         frame.render_widget(preview, layout[1]);
     }
 
@@ -167,8 +177,8 @@ impl App {
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
-            KeyCode::Char('k') => self.list_state.select_previous(),
-            KeyCode::Char('j') => self.list_state.select_next(),
+            KeyCode::Char('k') => self.table_state.select_previous(),
+            KeyCode::Char('j') => self.table_state.select_next(),
             KeyCode::Char('q') => self.exit(),
             _ => {}
         }
