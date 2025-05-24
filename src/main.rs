@@ -1,9 +1,14 @@
 use anyhow::Result;
 use clap::Parser;
-use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{
+    Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, ModifierKeyCode,
+};
 use futures::{FutureExt as _, StreamExt as _};
 use hubl::github::{ContentClient, Github, SearchItem};
-use nucleo::Nucleo;
+use nucleo::{
+    pattern::{CaseMatching, Normalization},
+    Nucleo,
+};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
@@ -39,6 +44,7 @@ pub struct App {
     content_cache: HashMap<String, String>, // url->content
     nucleo: Nucleo<SearchItem>,
     nucleo_rx: Receiver<()>,
+    pattern: String,
 }
 
 impl App {
@@ -68,6 +74,7 @@ impl App {
             content_cache: HashMap::new(),
             nucleo,
             nucleo_rx,
+            pattern: String::new(),
         }
     }
 
@@ -101,10 +108,12 @@ impl App {
 
         let input_layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(vec![Constraint::Length(3), Constraint::Fill(1)])
+            .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
+            .margin(1) // to account for the border we draw around everything
             .split(layout[0]);
 
-        let input = Paragraph::new("input").block(Block::bordered().borders(Borders::BOTTOM));
+        let input =
+            Paragraph::new(self.pattern.as_str()).block(Block::new().borders(Borders::BOTTOM));
         frame.render_widget(input, input_layout[0]);
 
         let snap = self.nucleo.snapshot();
@@ -186,15 +195,51 @@ impl App {
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
-            KeyCode::Char('k') => self.table_state.select_previous(),
-            KeyCode::Char('j') => self.table_state.select_next(),
-            KeyCode::Char('q') => self.exit(),
+            KeyCode::Esc => {
+                tracing::debug!("Exit requested");
+                self.exit = true;
+            }
+            KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                tracing::debug!("Exit requested");
+                self.exit = true;
+            }
+            KeyCode::Char('p') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                tracing::debug!("Selecting previous");
+                self.table_state.select_previous()
+            }
+            KeyCode::Char('n') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                tracing::debug!("Selecting next");
+                self.table_state.select_next()
+            }
+            KeyCode::Char('w') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                if let Some(idx) = self.pattern.rfind(char::is_whitespace) {
+                    self.pattern.truncate(idx);
+                    tracing::debug!("Truncated pattern to {}", self.pattern);
+                } else {
+                    self.pattern.clear();
+                    tracing::debug!("Cleared pattern");
+                }
+            }
+            KeyCode::Backspace => {
+                let char = self.pattern.pop();
+                tracing::debug!(
+                    "Popped char from pattern: {char:?}, new pattern: {}",
+                    self.pattern
+                );
+            }
+            KeyCode::Char(c) => {
+                self.pattern.push(c);
+                tracing::debug!("Updated filter pattern: {}", self.pattern);
+                self.nucleo.pattern.reparse(
+                    0,
+                    &self.pattern,
+                    CaseMatching::Smart,
+                    Normalization::Smart,
+                    true,
+                );
+            }
             _ => {}
         }
-    }
-
-    fn exit(&mut self) {
-        self.exit = true;
     }
 }
 
