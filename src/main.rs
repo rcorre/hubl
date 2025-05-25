@@ -8,7 +8,7 @@ use nucleo::{
     Nucleo,
 };
 use ratatui::{
-    layout::{Constraint, Direction, Layout},
+    layout::{Constraint, Direction, Layout, Position},
     style::{Style, Stylize},
     widgets::{Block, Borders, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
@@ -43,6 +43,7 @@ pub struct App {
     nucleo: Nucleo<SearchItem>,
     nucleo_rx: Receiver<()>,
     pattern: String,
+    cursor_pos: usize,
 }
 
 impl App {
@@ -75,6 +76,7 @@ impl App {
             nucleo,
             nucleo_rx,
             pattern: String::new(),
+            cursor_pos: 0,
         }
     }
 
@@ -101,20 +103,26 @@ impl App {
 
     fn draw(&mut self, frame: &mut Frame) {
         tracing::debug!("Drawing");
-        let layout = Layout::default()
+        let [search_area, preview_area] = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(frame.area());
+            .areas(frame.area());
 
-        let input_layout = Layout::default()
+        frame.render_widget(Block::bordered(), search_area);
+
+        let [input_area, search_area] = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
             .margin(1) // to account for the border we draw around everything
-            .split(layout[0]);
+            .areas(search_area);
 
         let input =
             Paragraph::new(self.pattern.as_str()).block(Block::new().borders(Borders::BOTTOM));
-        frame.render_widget(input, input_layout[0]);
+        frame.render_widget(input, input_area);
+        frame.set_cursor_position(Position::new(
+            input_area.x + self.cursor_pos as u16,
+            input_area.y,
+        ));
 
         let snap = self.nucleo.snapshot();
         let table = Table::new(
@@ -130,9 +138,7 @@ impl App {
         .row_highlight_style(Style::new().italic())
         .highlight_symbol(">");
 
-        frame.render_stateful_widget(table, input_layout[1], &mut self.table_state);
-
-        frame.render_widget(Block::bordered(), layout[0]);
+        frame.render_stateful_widget(table, search_area, &mut self.table_state);
 
         let idx = match self.table_state.selected() {
             Some(idx) => idx,
@@ -149,7 +155,7 @@ impl App {
             .unwrap_or("");
 
         let preview = Paragraph::new(content).block(Block::bordered());
-        frame.render_widget(preview, layout[1]);
+        frame.render_widget(preview, preview_area);
     }
 
     /// updates the application's state based on user input
@@ -216,6 +222,7 @@ impl App {
                 } else {
                     self.pattern.clear();
                     tracing::debug!("Cleared pattern");
+                    self.cursor_pos = 0;
                 }
                 self.nucleo.pattern.reparse(
                     0,
@@ -226,7 +233,10 @@ impl App {
                 );
             }
             KeyCode::Backspace => {
-                let char = self.pattern.pop();
+                let Some(char) = self.pattern.pop() else {
+                    return;
+                };
+                self.cursor_pos -= 1;
                 tracing::debug!(
                     "Popped char from pattern: {char:?}, new pattern: {}",
                     self.pattern
@@ -241,6 +251,7 @@ impl App {
             }
             KeyCode::Char(c) => {
                 self.pattern.push(c);
+                self.cursor_pos += 1;
                 tracing::debug!("Updated filter pattern: {}", self.pattern);
                 self.nucleo.pattern.reparse(
                     0,
@@ -278,6 +289,10 @@ async fn main() -> Result<()> {
     initialize_logging()?;
     let cli = Cli::parse();
     let mut terminal = ratatui::init();
+    crossterm::execute!(
+        std::io::stdout(),
+        crossterm::cursor::SetCursorStyle::BlinkingBar
+    )?;
     let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
     let app_result = App::new(github, &cli.query).await.run(&mut terminal).await;
     ratatui::restore();
