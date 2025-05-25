@@ -47,7 +47,7 @@ pub struct App {
 }
 
 impl App {
-    pub async fn new(github: Github, query: &str) -> Self {
+    pub fn new(github: Github, query: &str) -> Self {
         let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
         let nucleo = Nucleo::new(
             nucleo::Config::DEFAULT,
@@ -224,16 +224,21 @@ impl App {
             }
             KeyCode::Right => {
                 tracing::debug!("Moving cursor right");
-                self.cursor_pos = self.cursor_pos.saturating_add(1);
+                self.cursor_pos = (self.cursor_pos + 1).min(self.pattern.len())
             }
             KeyCode::Char('w') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                tracing::debug!(
+                    "Deleting word from '{}' at {}",
+                    self.pattern,
+                    self.cursor_pos
+                );
                 let (s, rest) = self.pattern.split_at(self.cursor_pos);
-                if let Some((s, _)) = s.rsplit_once(char::is_whitespace) {
-                    self.cursor_pos = s.len();
-                    self.pattern = s.to_owned() + rest;
+                if let Some(idx) = s.trim_end().rfind(char::is_whitespace) {
+                    self.cursor_pos = idx + 1;
+                    self.pattern = s[0..=idx].to_owned() + rest;
                     tracing::debug!("Truncated pattern to {}", self.pattern);
                 } else {
-                    self.pattern.clear();
+                    self.pattern = rest.into();
                     self.cursor_pos = 0;
                     tracing::debug!("Cleared pattern");
                 }
@@ -305,7 +310,141 @@ async fn main() -> Result<()> {
         crossterm::cursor::SetCursorStyle::BlinkingBar
     )?;
     let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
-    let app_result = App::new(github, &cli.query).await.run(&mut terminal).await;
+    let app_result = App::new(github, &cli.query).run(&mut terminal).await;
     ratatui::restore();
     app_result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn input(app: &mut App, s: &str) {
+        for c in s.chars() {
+            app.handle_key_event(KeyCode::Char(c).into());
+        }
+    }
+
+    #[tracing_test::traced_test]
+    #[tokio::test]
+    async fn test_input() {
+        let github = Github::new("".to_string(), "".to_string());
+        let mut app = App::new(github, "");
+
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+
+        input(&mut app, "abc");
+        assert_eq!(app.pattern, "abc");
+        assert_eq!(app.cursor_pos, 3);
+
+        app.handle_key_event(KeyCode::Backspace.into());
+        assert_eq!(app.pattern, "ab");
+        assert_eq!(app.cursor_pos, 2);
+
+        app.handle_key_event(KeyCode::Backspace.into());
+        assert_eq!(app.pattern, "a");
+        assert_eq!(app.cursor_pos, 1);
+
+        app.handle_key_event(KeyCode::Backspace.into());
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+
+        app.handle_key_event(KeyCode::Backspace.into());
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+    }
+
+    #[tracing_test::traced_test]
+    #[tokio::test]
+    async fn test_delete_word() {
+        let github = Github::new("".to_string(), "".to_string());
+        let mut app = App::new(github, "");
+
+        input(&mut app, "abc def ghi");
+        assert_eq!(app.pattern, "abc def ghi");
+        assert_eq!(app.cursor_pos, 11);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, "abc def ");
+        assert_eq!(app.cursor_pos, 8);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, "abc ");
+        assert_eq!(app.cursor_pos, 4);
+
+        input(&mut app, "    ");
+        assert_eq!(app.pattern, "abc     ");
+        assert_eq!(app.cursor_pos, 8);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+    }
+
+    #[tracing_test::traced_test]
+    #[tokio::test]
+    async fn test_cursor_movement() {
+        let github = Github::new("".to_string(), "".to_string());
+        let mut app = App::new(github, "");
+
+        input(&mut app, "abc def ghi");
+        assert_eq!(app.pattern, "abc def ghi");
+        assert_eq!(app.cursor_pos, 11);
+
+        app.handle_key_event(KeyCode::Left.into());
+        assert_eq!(app.cursor_pos, 10);
+
+        for _ in 0..4 {
+            app.handle_key_event(KeyCode::Left.into());
+        }
+        assert_eq!(app.cursor_pos, 6);
+
+        for _ in 0..8 {
+            app.handle_key_event(KeyCode::Left.into());
+        }
+        assert_eq!(app.cursor_pos, 0);
+
+        for _ in 0..8 {
+            app.handle_key_event(KeyCode::Right.into());
+        }
+        assert_eq!(app.cursor_pos, 8);
+
+        for _ in 0..8 {
+            app.handle_key_event(KeyCode::Right.into());
+        }
+        assert_eq!(app.cursor_pos, 11);
+    }
+
+    #[tracing_test::traced_test]
+    #[tokio::test]
+    async fn test_cursor_input() {
+        let github = Github::new("".to_string(), "".to_string());
+        let mut app = App::new(github, "");
+
+        input(&mut app, "abc def ghi");
+        assert_eq!(app.pattern, "abc def ghi");
+        assert_eq!(app.cursor_pos, 11);
+
+        for _ in 0..4 {
+            app.handle_key_event(KeyCode::Left.into());
+        }
+        assert_eq!(app.cursor_pos, 7);
+
+        input(&mut app, "bar");
+        assert_eq!(app.pattern, "abc defbar ghi");
+        assert_eq!(app.cursor_pos, 10);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, "abc  ghi");
+        assert_eq!(app.cursor_pos, 4);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
+        assert_eq!(app.pattern, " ghi");
+        assert_eq!(app.cursor_pos, 0);
+    }
 }
