@@ -63,7 +63,9 @@ impl App {
         github.search_code(
             query,
             Arc::new(move |result| {
-                injector.push(result, |_, _| {});
+                injector.push(result, |item, columns| {
+                    columns[0] = format!("{} {}", item.path, item.repository.full_name).into()
+                });
             }),
         );
         Self {
@@ -219,12 +221,26 @@ impl App {
                     self.pattern.clear();
                     tracing::debug!("Cleared pattern");
                 }
+                self.nucleo.pattern.reparse(
+                    0,
+                    &self.pattern,
+                    CaseMatching::Smart,
+                    Normalization::Smart,
+                    false,
+                );
             }
             KeyCode::Backspace => {
                 let char = self.pattern.pop();
                 tracing::debug!(
                     "Popped char from pattern: {char:?}, new pattern: {}",
                     self.pattern
+                );
+                self.nucleo.pattern.reparse(
+                    0,
+                    &self.pattern,
+                    CaseMatching::Smart,
+                    Normalization::Smart,
+                    false,
                 );
             }
             KeyCode::Char(c) => {
