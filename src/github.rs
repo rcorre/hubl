@@ -237,7 +237,7 @@ mod tests {
 
         for name in ["foo", "bar", "biz", "baz"] {
             assert_eq!(
-                rx.recv().await.unwrap(),
+                rx.recv().await.context(format!("Awaiting {name}")).unwrap(),
                 SearchItem {
                     url: format!("example.com/{name}"),
                     path: format!("{name}.txt"),

@@ -1,8 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use crossterm::event::{
-    Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, ModifierKeyCode,
-};
+use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use futures::{FutureExt as _, StreamExt as _};
 use hubl::github::{ContentClient, Github, SearchItem};
 use nucleo::{
@@ -144,15 +142,13 @@ impl App {
             }
         };
 
-        let Some(item) = snap.get_matched_item(idx.try_into().unwrap()) else {
-            return;
-        };
-        let url = &item.data.url;
-        let Some(content) = self.content_cache.get(url) else {
-            return;
-        };
+        let content = snap
+            .get_matched_item(idx.try_into().unwrap())
+            .and_then(|item| self.content_cache.get(&item.data.url))
+            .map(|s| s.as_str())
+            .unwrap_or("");
 
-        let preview = Paragraph::new(content.as_str()).block(Block::bordered());
+        let preview = Paragraph::new(content).block(Block::bordered());
         frame.render_widget(preview, layout[1]);
     }
 
