@@ -125,20 +125,23 @@ impl App {
         ));
 
         let snap = self.nucleo.snapshot();
-        let table = Table::new(
-            snap.matched_items(0..snap.matched_item_count())
-                .map(|item| {
-                    Row::new(vec![
-                        item.data.repository.full_name.as_str(),
-                        item.data.path.as_str(),
-                    ])
-                }),
-            &[Constraint::Max(32), Constraint::Fill(1)],
-        )
-        .row_highlight_style(Style::new().italic())
-        .highlight_symbol(">");
-
-        frame.render_stateful_widget(table, search_area, &mut self.table_state);
+        if snap.matched_item_count() > 0 {
+            let table = Table::new(
+                snap.matched_items(0..snap.matched_item_count())
+                    .map(|item| {
+                        Row::new(vec![
+                            item.data.repository.full_name.as_str(),
+                            item.data.path.as_str(),
+                        ])
+                    }),
+                &[Constraint::Max(32), Constraint::Fill(1)],
+            )
+            .row_highlight_style(Style::new().italic())
+            .highlight_symbol(">");
+            frame.render_stateful_widget(table, search_area, &mut self.table_state);
+        } else {
+            frame.render_widget(Paragraph::new("Loading..."), search_area);
+        }
 
         let idx = match self.table_state.selected() {
             Some(idx) => idx,
@@ -215,14 +218,24 @@ impl App {
                 tracing::debug!("Selecting next");
                 self.table_state.select_next()
             }
+            KeyCode::Left => {
+                tracing::debug!("Moving cursor left");
+                self.cursor_pos = self.cursor_pos.saturating_sub(1)
+            }
+            KeyCode::Right => {
+                tracing::debug!("Moving cursor right");
+                self.cursor_pos = self.cursor_pos.saturating_add(1);
+            }
             KeyCode::Char('w') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                if let Some(idx) = self.pattern.rfind(char::is_whitespace) {
-                    self.pattern.truncate(idx);
+                let (s, rest) = self.pattern.split_at(self.cursor_pos);
+                if let Some((s, _)) = s.rsplit_once(char::is_whitespace) {
+                    self.cursor_pos = s.len();
+                    self.pattern = s.to_owned() + rest;
                     tracing::debug!("Truncated pattern to {}", self.pattern);
                 } else {
                     self.pattern.clear();
-                    tracing::debug!("Cleared pattern");
                     self.cursor_pos = 0;
+                    tracing::debug!("Cleared pattern");
                 }
                 self.nucleo.pattern.reparse(
                     0,
@@ -233,14 +246,12 @@ impl App {
                 );
             }
             KeyCode::Backspace => {
-                let Some(char) = self.pattern.pop() else {
+                if self.cursor_pos == 0 {
                     return;
                 };
                 self.cursor_pos -= 1;
-                tracing::debug!(
-                    "Popped char from pattern: {char:?}, new pattern: {}",
-                    self.pattern
-                );
+                let c = self.pattern.remove(self.cursor_pos);
+                tracing::debug!("Removed '{c}' from pattern, new pattern: {}", self.pattern);
                 self.nucleo.pattern.reparse(
                     0,
                     &self.pattern,
@@ -250,7 +261,7 @@ impl App {
                 );
             }
             KeyCode::Char(c) => {
-                self.pattern.push(c);
+                self.pattern.insert(self.cursor_pos, c);
                 self.cursor_pos += 1;
                 tracing::debug!("Updated filter pattern: {}", self.pattern);
                 self.nucleo.pattern.reparse(
