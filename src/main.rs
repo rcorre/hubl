@@ -1,3 +1,4 @@
+use ansi_to_tui::IntoText as _;
 use anyhow::Result;
 use clap::Parser;
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -15,6 +16,9 @@ use ratatui::{
 };
 use std::collections::HashMap;
 use std::{collections::hash_map::Entry, sync::Arc};
+use syntect::{
+    easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet, util::LinesWithEndings,
+};
 use tokio::sync::mpsc::{self, Receiver};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _, Layer as _};
@@ -157,7 +161,8 @@ impl App {
             .map(|s| s.as_str())
             .unwrap_or("");
 
-        let preview = Paragraph::new(content).block(Block::bordered());
+        let text = content.into_text().unwrap();
+        let preview = Paragraph::new(text).block(Block::bordered());
         frame.render_widget(preview, preview_area);
     }
 
@@ -197,7 +202,19 @@ impl App {
 
     fn process_content(&mut self, url: String, content: String) {
         tracing::debug!("Caching content for: {url}");
-        self.content_cache.insert(url, content);
+        // TODO: cache these
+        let ps = SyntaxSet::load_defaults_newlines();
+        let ts = ThemeSet::load_defaults();
+        let syntax = ps.find_syntax_by_extension("rs").unwrap();
+        let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
+        let text = LinesWithEndings::from(&content)
+            .map(|line| {
+                let ranges = h.highlight_line(line, &ps).unwrap();
+                syntect::util::as_24_bit_terminal_escaped(&ranges[..], true)
+            })
+            .collect::<Vec<_>>()
+            .join("");
+        self.content_cache.insert(url, text);
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
