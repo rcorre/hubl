@@ -15,7 +15,7 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use std::collections::HashMap;
-use std::{collections::hash_map::Entry, io::Cursor, sync::Arc};
+use std::{io::Cursor, sync::Arc};
 use syntect::{
     easy::HighlightLines,
     highlighting::{self, Theme, ThemeSet},
@@ -180,13 +180,14 @@ impl App {
     /// updates the application's state based on user input
     async fn handle_events(&mut self) -> Result<()> {
         tracing::trace!("Awaiting event");
-        if let Some(item) = self.selected_item() {
-            let url = item.url.clone();
-            // First time selecting this item, insert a placeholder and request content
-            if let Entry::Vacant(entry) = self.content_cache.entry(url.clone()) {
-                tracing::debug!("Requesting content for {url}");
-                entry.insert("<fetching...>".into());
-                self.content_client.get_content(url).await?;
+        // TODO: eliminate clone here
+        if let Some(item) = self.selected_item().cloned() {
+            if !self.content_cache.contains_key(&item.url) {
+                // First time selecting this item, insert a placeholder and request content
+                tracing::debug!("Requesting content for {}", item.path);
+                self.content_cache
+                    .insert(item.url.clone(), "<fetching...>".into());
+                self.content_client.get_content(item.clone()).await?;
             }
         }
         tokio::select! {
@@ -200,9 +201,9 @@ impl App {
                     _ => {}
                 };
             },
-            Some((url, content)) = self.content_client.rx.recv() => {
+            Some((item, content)) = self.content_client.rx.recv() => {
                 tracing::debug!("Handling file content event");
-                self.process_content(url, content);
+                self.process_content(item, content);
             }
             Some(()) = self.nucleo_rx.recv() => {
                 tracing::debug!("Redrawing for nucleo update");
@@ -284,9 +285,19 @@ impl App {
         line
     }
 
-    fn process_content(&mut self, url: String, content: String) {
-        tracing::debug!("Caching content for: {url}");
-        let syntax = self.syntax.find_syntax_by_extension("rs").unwrap();
+    fn process_content(&mut self, item: SearchItem, content: String) {
+        tracing::debug!("Caching content for: {}", item.url);
+        let syntax = std::path::Path::new(&item.path)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .and_then(|ext| self.syntax.find_syntax_by_extension(ext))
+            .or_else(|| {
+                content
+                    .lines()
+                    .next()
+                    .and_then(|line| self.syntax.find_syntax_by_first_line(line))
+            })
+            .unwrap_or_else(|| self.syntax.find_syntax_plain_text());
         let mut h = HighlightLines::new(syntax, &self.theme);
 
         let mut text = Text::default();
@@ -294,7 +305,7 @@ impl App {
             let ranges = h.highlight_line(line, &self.syntax).unwrap();
             text.push_line(Self::to_line_widget(ranges))
         }
-        self.content_cache.insert(url, text);
+        self.content_cache.insert(item.url, text);
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {

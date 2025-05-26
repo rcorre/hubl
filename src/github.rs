@@ -12,24 +12,24 @@ pub struct Github {
     token: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchRepository {
     pub full_name: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchItem {
     pub url: String,
     pub path: String,
     pub repository: SearchRepository,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchResponse {
     pub items: Vec<SearchItem>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 struct ContentResponse {
     pub content: String,
 }
@@ -121,21 +121,21 @@ async fn search_code_task(
 
 async fn item_content_task(
     github: Github,
-    mut rx: Receiver<String>,     // receives URL to look up
-    tx: Sender<(String, String)>, // sends (URL, content)
+    mut rx: Receiver<SearchItem>,
+    tx: Sender<(SearchItem, String)>, // sends (URL, content)
 ) -> Result<()> {
     tracing::debug!("starting item content task");
     let client = reqwest::Client::new();
 
     loop {
         tracing::debug!("awaiting item content request");
-        let Some(url) = rx.recv().await else {
+        let Some(item) = rx.recv().await else {
             tracing::debug!("item content channel closed");
             return Ok(());
         };
 
         let req = client
-            .request(reqwest::Method::GET, &url)
+            .request(reqwest::Method::GET, &item.url)
             .bearer_auth(&github.token)
             .header(reqwest::header::USER_AGENT, env!("CARGO_PKG_NAME"))
             .build()?;
@@ -152,8 +152,8 @@ async fn item_content_task(
         let data = BASE64_STANDARD.decode(content.content.replace("\n", ""))?;
         let body = String::from_utf8(data)?;
 
-        tracing::trace!("sending response for url {url}: {body}");
-        tx.send((url, body)).await?;
+        tracing::trace!("sending response for url {}", item.path);
+        tx.send((item, body)).await?;
     }
 }
 
@@ -171,8 +171,8 @@ impl Github {
 }
 
 pub struct ContentClient {
-    pub tx: Sender<String>,             // Sends URL
-    pub rx: Receiver<(String, String)>, // Receives (URL, Content)
+    pub tx: Sender<SearchItem>,             // Sends URL
+    pub rx: Receiver<(SearchItem, String)>, // Receives (URL, Content)
 }
 
 impl ContentClient {
@@ -187,11 +187,11 @@ impl ContentClient {
         }
     }
 
-    pub async fn get_content(&self, url: impl Into<String>) -> Result<()> {
-        Ok(self.tx.send(url.into()).await?)
+    pub async fn get_content(&self, item: SearchItem) -> Result<()> {
+        Ok(self.tx.send(item).await?)
     }
 
-    pub async fn recv_content(&mut self) -> Option<(String, String)> {
+    pub async fn recv_content(&mut self) -> Option<(SearchItem, String)> {
         self.rx.recv().await
     }
 }
@@ -276,19 +276,28 @@ mod tests {
 
         let mut content_client = ContentClient::new(github);
 
-        let url = format!("{host}/content/foo1");
-        content_client.get_content(&url).await.unwrap();
+        let item = SearchItem {
+            url: format!("{host}/content/foo1"),
+            ..Default::default()
+        };
+        content_client.get_content(item.clone()).await.unwrap();
         let res = content_client.recv_content().await.unwrap();
-        assert_eq!(res, (url, "body1".to_string()));
+        assert_eq!(res, (item, "body1".to_string()));
 
-        let url = format!("{host}/content/foo2");
-        content_client.get_content(&url).await.unwrap();
+        let item = SearchItem {
+            url: format!("{host}/content/foo2"),
+            ..Default::default()
+        };
+        content_client.get_content(item.clone()).await.unwrap();
         let res = content_client.recv_content().await.unwrap();
-        assert_eq!(res, (url, "body2".to_string()));
+        assert_eq!(res, (item, "body2".to_string()));
 
-        let url = format!("{host}/content/foo3");
-        content_client.get_content(&url).await.unwrap();
+        let item = SearchItem {
+            url: format!("{host}/content/foo3"),
+            ..Default::default()
+        };
+        content_client.get_content(item.clone()).await.unwrap();
         let res = content_client.recv_content().await.unwrap();
-        assert_eq!(res, (url, "body3".to_string()));
+        assert_eq!(res, (item, "body3".to_string()));
     }
 }
