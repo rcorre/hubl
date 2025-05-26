@@ -48,6 +48,9 @@ pub struct App {
     nucleo_rx: Receiver<()>,
     pattern: String,
     cursor_pos: usize,
+
+    syntax: SyntaxSet,
+    themes: ThemeSet,
 }
 
 impl App {
@@ -81,6 +84,8 @@ impl App {
             nucleo_rx,
             pattern: String::new(),
             cursor_pos: 0,
+            syntax: SyntaxSet::load_defaults_newlines(),
+            themes: ThemeSet::load_defaults(),
         }
     }
 
@@ -202,14 +207,11 @@ impl App {
 
     fn process_content(&mut self, url: String, content: String) {
         tracing::debug!("Caching content for: {url}");
-        // TODO: cache these
-        let ps = SyntaxSet::load_defaults_newlines();
-        let ts = ThemeSet::load_defaults();
-        let syntax = ps.find_syntax_by_extension("rs").unwrap();
-        let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
+        let syntax = self.syntax.find_syntax_by_extension("rs").unwrap();
+        let mut h = HighlightLines::new(syntax, &self.themes.themes["Solarized (dark)"]);
         let text = LinesWithEndings::from(&content)
             .map(|line| {
-                let ranges = h.highlight_line(line, &ps).unwrap();
+                let ranges = h.highlight_line(line, &self.syntax).unwrap();
                 syntect::util::as_24_bit_terminal_escaped(&ranges[..], true)
             })
             .collect::<Vec<_>>()
