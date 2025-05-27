@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Parser;
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use futures::{FutureExt as _, StreamExt as _};
@@ -30,11 +30,15 @@ fn get_auth_token() -> Result<String> {
     Ok(core::str::from_utf8(&output.stdout)?.trim().to_string())
 }
 
-#[derive(clap::Parser)]
+#[derive(Default, clap::Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Query to search.
     query: String,
+
+    /// Maximum number of result pages.
+    #[arg(short, long, default_value_t = 5)]
+    pages: usize,
 }
 
 pub struct App {
@@ -55,7 +59,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(github: Github, query: &str) -> Self {
+    pub fn new(github: Github, cli: Cli) -> Self {
         let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
         let nucleo = Nucleo::new(
             nucleo::Config::DEFAULT,
@@ -68,7 +72,8 @@ impl App {
         );
         let injector = nucleo.injector();
         github.search_code(
-            query,
+            &cli.query,
+            cli.pages,
             Arc::new(move |result| {
                 injector.push(result, |item, columns| {
                     columns[0] = format!("{} {}", item.path, item.repository.full_name).into()
@@ -200,7 +205,7 @@ impl App {
         tokio::select! {
             event = self.event_stream.next().fuse() => {
                 tracing::debug!("Handling terminal event");
-                let event = event.unwrap()?;
+                let event = event.context("Event stream closed")??;
                 match event {
                     Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                         self.handle_key_event(key_event)
@@ -345,7 +350,7 @@ async fn main() -> Result<()> {
         crossterm::cursor::SetCursorStyle::BlinkingBar
     )?;
     let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
-    let app_result = App::new(github, &cli.query).run(&mut terminal).await;
+    let app_result = App::new(github, cli).run(&mut terminal).await;
     ratatui::restore();
     app_result
 }
@@ -364,7 +369,7 @@ mod tests {
     #[tokio::test]
     async fn test_input() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, "");
+        let mut app = App::new(github, Cli::default());
 
         assert_eq!(app.pattern, "");
         assert_eq!(app.cursor_pos, 0);
@@ -394,7 +399,7 @@ mod tests {
     #[tokio::test]
     async fn test_delete_word() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, "");
+        let mut app = App::new(github, Cli::default());
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");
@@ -425,7 +430,7 @@ mod tests {
     #[tokio::test]
     async fn test_cursor_movement() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, "");
+        let mut app = App::new(github, Cli::default());
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");
@@ -459,7 +464,7 @@ mod tests {
     #[tokio::test]
     async fn test_cursor_input() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, "");
+        let mut app = App::new(github, Cli::default());
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");

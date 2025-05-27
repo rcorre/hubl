@@ -73,14 +73,14 @@ async fn await_rate_limit(resp: &reqwest::Response) -> Result<bool> {
 async fn search_code_task(
     github: Github,
     term: String,
+    max_pages: usize,
     callback: Arc<(dyn Fn(SearchItem) + Send + Sync)>,
 ) -> Result<()> {
     tracing::debug!("starting code search task: {term}");
     let client = reqwest::Client::new();
     let url = github.host + "/search/code";
 
-    // TODO: configure max pages
-    for page in 1..=1 {
+    for page in 1..=max_pages {
         let req = client
             .request(reqwest::Method::GET, &url)
             .bearer_auth(&github.token)
@@ -162,11 +162,20 @@ impl Github {
         Self { host, token }
     }
 
-    pub fn search_code(&self, term: &str, callback: Arc<(dyn Fn(SearchItem) + Sync + Send)>) {
+    pub fn search_code(
+        &self,
+        term: &str,
+        max_pages: usize,
+        callback: Arc<(dyn Fn(SearchItem) + Sync + Send)>,
+    ) {
         tracing::debug!("starting code search: {term}");
         let github = self.clone();
         let term = term.to_string();
-        tokio::spawn(async move { search_code_task(github, term, callback).await.unwrap() });
+        tokio::spawn(async move {
+            search_code_task(github, term, max_pages, callback)
+                .await
+                .unwrap()
+        });
     }
 }
 
@@ -230,6 +239,7 @@ mod tests {
         let (tx, mut rx) = mpsc::channel(8);
         github.search_code(
             "foo",
+            4,
             Arc::new(move |res| {
                 tx.try_send(res).unwrap();
             }),
