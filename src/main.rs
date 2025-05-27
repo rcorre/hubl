@@ -14,7 +14,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Instant};
 use std::{io::Cursor, sync::Arc};
 use syntect::{
     easy::HighlightLines,
@@ -54,6 +54,11 @@ pub struct App {
     pattern: String,
     cursor_pos: usize,
 
+    // When an item is selected, this is set to now+<small_timeout>.
+    // If this elapses before selecting a new item, we will request a preview.
+    // This debounces preview requests when quickly scrolling.
+    preview_deadline: Option<Instant>,
+
     syntax: SyntaxSet,
     theme: Theme,
 }
@@ -91,6 +96,7 @@ impl App {
             nucleo_rx,
             pattern: String::new(),
             cursor_pos: 0,
+            preview_deadline: None,
             syntax: SyntaxSet::load_defaults_newlines(),
             theme: ThemeSet::load_from_reader(&mut theme_cursor).expect("Loading theme"),
         }
@@ -99,22 +105,42 @@ impl App {
     /// runs the application's main loop until the user quits
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
-            self.nucleo.tick(10);
             terminal.draw(|frame| self.draw(frame))?;
+            self.nucleo.tick(10);
             self.handle_events().await?;
         }
         Ok(())
     }
 
-    fn selected_item(&self) -> Option<&SearchItem> {
-        self.table_state
+    async fn maybe_request_preview(&mut self) -> Result<()> {
+        let snap = self.nucleo.snapshot();
+        let Some(item) = self
+            .table_state
             .selected()
-            .and_then(|idx| {
-                self.nucleo
-                    .snapshot()
-                    .get_matched_item(idx.try_into().unwrap())
-            })
+            .and_then(|idx| snap.get_matched_item(idx.try_into().unwrap()))
             .map(|item| item.data)
+        else {
+            tracing::trace!("No item matched for preview");
+            return Ok(());
+        };
+
+        if self.content_cache.contains_key(&item.url) {
+            tracing::trace!("Item preview already cached: {}", item.url);
+            return Ok(());
+        }
+
+        // First time selecting this item, insert a placeholder and request content
+        tracing::debug!("Requesting preview for: {}", item.url);
+        self.content_cache
+            .insert(item.url.clone(), "<fetching...>".into());
+        self.content_client.get_content(item.clone()).await
+    }
+
+    fn start_preview_timer(&mut self) {
+        // TODO: only start if we need a new preview, to avoid extra redraws
+        tracing::trace!("Starting preview timer");
+        self.preview_deadline =
+            Some(std::time::Instant::now() + std::time::Duration::from_millis(100));
     }
 
     fn draw(&mut self, frame: &mut Frame) {
@@ -178,16 +204,12 @@ impl App {
     /// updates the application's state based on user input
     async fn handle_events(&mut self) -> Result<()> {
         tracing::trace!("Awaiting event");
-        // TODO: eliminate clone here
-        if let Some(item) = self.selected_item().cloned() {
-            if !self.content_cache.contains_key(&item.url) {
-                // First time selecting this item, insert a placeholder and request content
-                tracing::debug!("Requesting content for {}", item.path);
-                self.content_cache
-                    .insert(item.url.clone(), "<fetching...>".into());
-                self.content_client.get_content(item.clone()).await?;
-            }
-        }
+
+        let await_preview = async {
+            self.preview_deadline
+                .map(|when| tokio::time::sleep_until(when.into()))
+        };
+
         tokio::select! {
             event = self.event_stream.next().fuse() => {
                 tracing::debug!("Handling terminal event");
@@ -205,6 +227,10 @@ impl App {
             }
             Some(()) = self.nucleo_rx.recv() => {
                 tracing::debug!("Redrawing for nucleo update");
+            }
+            Some(_) = await_preview => {
+                tracing::trace!("Preview timer elapsed");
+                self.maybe_request_preview().await?;
             }
         }
         Ok(())
@@ -327,10 +353,12 @@ impl App {
             }
             KeyCode::Char('n') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                 tracing::debug!("Selecting next");
+                self.start_preview_timer();
                 self.table_state.select_next()
             }
             KeyCode::Left => {
                 tracing::debug!("Moving cursor left");
+                self.start_preview_timer();
                 self.cursor_pos = self.cursor_pos.saturating_sub(1)
             }
             KeyCode::Right => {
