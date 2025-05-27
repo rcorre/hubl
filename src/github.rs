@@ -180,8 +180,8 @@ impl Github {
 }
 
 pub struct ContentClient {
-    pub tx: Sender<SearchItem>,             // Sends URL
-    pub rx: Receiver<(SearchItem, String)>, // Receives (URL, Content)
+    tx: Sender<SearchItem>,             // Sends URL
+    rx: Receiver<(SearchItem, String)>, // Receives (URL, Content)
 }
 
 impl ContentClient {

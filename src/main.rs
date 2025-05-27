@@ -59,7 +59,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(github: Github, cli: Cli) -> Self {
+    fn new(github: Github, cli: Cli) -> Self {
         let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
         let nucleo = Nucleo::new(
             nucleo::Config::DEFAULT,
@@ -213,7 +213,7 @@ impl App {
                     _ => {}
                 };
             },
-            Some((item, content)) = self.content_client.rx.recv() => {
+            Some((item, content)) = self.content_client.recv_content() => {
                 tracing::debug!("Handling file content event");
                 self.process_content(item, content)?;
             }
