@@ -155,8 +155,6 @@ impl App {
             .row_highlight_style(Style::new().italic())
             .highlight_symbol(">");
             frame.render_stateful_widget(table, search_area, &mut self.table_state);
-        } else {
-            frame.render_widget(Paragraph::new("Loading..."), search_area);
         }
 
         let idx = match self.table_state.selected() {
@@ -319,8 +317,13 @@ impl App {
                 self.exit = true;
             }
             KeyCode::Char('p') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                tracing::debug!("Selecting previous");
-                self.table_state.select_previous()
+                if self.table_state.selected().unwrap_or_default() == 0 {
+                    tracing::debug!("Selecting last");
+                    self.table_state.select_last();
+                } else {
+                    tracing::debug!("Selecting previous");
+                    self.table_state.select_previous()
+                }
             }
             KeyCode::Char('n') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                 tracing::debug!("Selecting next");
