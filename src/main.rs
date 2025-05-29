@@ -13,7 +13,7 @@ use nucleo::{
 use ratatui::{
     layout::{Constraint, Direction, Layout, Position},
     style::{Style, Stylize},
-    widgets::{Block, Borders, Paragraph, Row, Table, TableState},
+    widgets::{Block, Borders, List, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use std::sync::Arc;
@@ -59,7 +59,7 @@ pub struct App {
 }
 
 impl App {
-    fn new(github: Github, cli: Cli) -> Self {
+    fn new(github: Github, cli: Cli) -> Result<Self> {
         let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
         let nucleo = Nucleo::new(
             nucleo::Config::DEFAULT,
@@ -81,18 +81,18 @@ impl App {
             }),
         );
 
-        Self {
+        Ok(Self {
             event_stream: EventStream::default(),
             exit: false,
             table_state: TableState::default().with_selected(Some(0)),
             content_client: ContentClient::new(github),
-            preview_cache: PreviewCache::new(),
+            preview_cache: PreviewCache::new(&cli.query)?,
             nucleo,
             nucleo_rx,
             pattern: String::new(),
             cursor_pos: 0,
             preview_deadline: None,
-        }
+        })
     }
 
     /// runs the application's main loop until the user quits
@@ -183,14 +183,26 @@ impl App {
             }
         };
 
-        let text = snap
+        let preview_fragments = snap
             .get_matched_item(idx.try_into().unwrap())
             .and_then(|item| self.preview_cache.get(&item.data.url))
             .cloned()
             .unwrap_or_default();
 
-        let preview = Paragraph::new(text).block(Block::bordered());
-        frame.render_widget(preview, preview_area);
+        let preview_areas = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                preview_fragments
+                    .iter()
+                    .map(|frag| Constraint::Length(frag.lines.len() as u16)),
+            )
+            // .margin(1) // to account for the border we draw around everything
+            .split(preview_area);
+
+        for (area, frag) in preview_areas.iter().zip(preview_fragments) {
+            let preview = Paragraph::new(frag).block(Block::bordered());
+            frame.render_widget(preview, *area);
+        }
     }
 
     /// updates the application's state based on user input
@@ -350,7 +362,7 @@ async fn main() -> Result<()> {
         crossterm::cursor::SetCursorStyle::BlinkingBar
     )?;
     let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
-    let app_result = App::new(github, cli).run(&mut terminal).await;
+    let app_result = App::new(github, cli)?.run(&mut terminal).await;
     ratatui::restore();
     app_result
 }
@@ -369,7 +381,7 @@ mod tests {
     #[tokio::test]
     async fn test_input() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, Cli::default());
+        let mut app = App::new(github, Cli::default()).unwrap();
 
         assert_eq!(app.pattern, "");
         assert_eq!(app.cursor_pos, 0);
@@ -399,7 +411,7 @@ mod tests {
     #[tokio::test]
     async fn test_delete_word() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, Cli::default());
+        let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");
@@ -430,7 +442,7 @@ mod tests {
     #[tokio::test]
     async fn test_cursor_movement() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, Cli::default());
+        let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");
@@ -464,7 +476,7 @@ mod tests {
     #[tokio::test]
     async fn test_cursor_input() {
         let github = Github::new("".to_string(), "".to_string());
-        let mut app = App::new(github, Cli::default());
+        let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");
         assert_eq!(app.pattern, "abc def ghi");

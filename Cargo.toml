@@ -19,6 +19,7 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 xdg = "3.0.0"
 syntect = "5.2.0"
+regex = "1.11.1"
 
 [dev-dependencies]
 http-test-server = "2.1.1"

@@ -1,41 +1,47 @@
 use anyhow::Result;
 use ratatui::text::{Line, Span, Text};
+use regex::{Regex, RegexBuilder};
 use std::{collections::HashMap, fmt::Display, io::Cursor, path::Path};
 use syntect::{
     easy::HighlightLines,
     highlighting::{self, Theme, ThemeSet},
     parsing::SyntaxSet,
-    util::LinesWithEndings,
 };
 
 const ANSI_THEME: &[u8] = include_bytes!("ansi.tmTheme");
 
+pub type Fragments = Vec<Text<'static>>;
+
 pub struct PreviewCache {
-    cache: HashMap<String, Text<'static>>, // url->content
+    cache: HashMap<String, Fragments>, // url->content
     syntax: SyntaxSet,
     theme: Theme,
+    regex: Regex,
 }
 
 impl PreviewCache {
-    pub fn new() -> Self {
+    pub fn new(search_term: &str) -> Result<Self> {
         let mut theme_cursor = Cursor::new(ANSI_THEME);
-        Self {
+        Ok(Self {
             cache: HashMap::new(),
             syntax: SyntaxSet::load_defaults_newlines(),
             theme: ThemeSet::load_from_reader(&mut theme_cursor).expect("Loading theme"),
-        }
+            regex: RegexBuilder::new(search_term)
+                .case_insensitive(true)
+                .build()?,
+        })
     }
 
     pub fn contains(&self, url: &str) -> bool {
         self.cache.contains_key(url)
     }
 
-    pub fn get(&self, url: &str) -> Option<&Text<'static>> {
+    pub fn get(&self, url: &str) -> Option<&Fragments> {
         self.cache.get(url)
     }
 
     pub fn insert_placeholder(&mut self, url: impl Into<String> + Display) {
-        self.cache.insert(url.into(), "<loading...>".into());
+        self.cache.insert(url.into(), vec![]);
     }
 
     pub fn insert(
@@ -59,14 +65,53 @@ impl PreviewCache {
             .unwrap_or_else(|| self.syntax.find_syntax_plain_text());
         let mut h = HighlightLines::new(syntax, &self.theme);
 
-        let mut text = Text::default();
-        for line in LinesWithEndings::from(content) {
-            let ranges = h.highlight_line(line, &self.syntax)?;
-            text.push_line(to_line_widget(ranges))
+        let mut matching_lines = Vec::new();
+        let mut highlighted_lines = Vec::new();
+
+        for (i, line) in content.lines().enumerate() {
+            if self.regex.is_match(line) {
+                matching_lines.push(i);
+            }
+            highlighted_lines.push(h.highlight_line(line, &self.syntax)?);
         }
-        self.cache.insert(url.into(), text);
+
+        let spans = line_spans(matching_lines, highlighted_lines.len() - 1);
+        if spans.is_empty() {
+            tracing::error!("No matches found: {}", url);
+        }
+
+        self.cache.insert(
+            url.into(),
+            spans
+                .into_iter()
+                .map(|range| {
+                    Text::from_iter(range.map(|n| to_line_widget(highlighted_lines[n].clone())))
+                })
+                .collect(),
+        );
         Ok(())
     }
+}
+
+// Given a list of matching line numbers, return a list of start/end pairs that encompass matching lines with context
+fn line_spans(line_numbers: Vec<usize>, max_line: usize) -> Vec<std::ops::RangeInclusive<usize>> {
+    // TODO: Make configurable
+    // TODO: Merge nearby segments
+    const CONTEXT_LINES: usize = 5;
+
+    let mut spans = Vec::new();
+    for n in line_numbers {
+        spans.push(n.saturating_sub(CONTEXT_LINES)..=max_line.min(n + CONTEXT_LINES));
+    }
+    spans
+}
+
+#[test]
+fn test_line_spans() {
+    assert_eq!(
+        line_spans(vec![1, 5, 8, 20, 24], 28),
+        vec![0..=6, 0..=10, 3..=13, 15..=25, 19..=28]
+    );
 }
 
 // Borrowed from https://github.com/sxyazi/yazi/pull/460/files
