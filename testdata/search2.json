@@ -5,14 +5,46 @@
       "path": "biz.txt",
       "repository": {
         "full_name": "bizrepo"
-      }
+      },
+      "text_matches": [
+        {
+          "object_type": "FileContent",
+          "property": "content",
+          "fragment": "the fragment",
+          "matches": [
+            {
+              "indices": [
+                10,
+                20
+              ],
+              "text": "stuff"
+            }
+          ]
+        }
+      ]
     },
     {
       "url": "example.com/baz",
       "path": "baz.txt",
       "repository": {
         "full_name": "bazrepo"
-      }
+      },
+      "text_matches": [
+        {
+          "object_type": "FileContent",
+          "property": "content",
+          "fragment": "the fragment",
+          "matches": [
+            {
+              "indices": [
+                10,
+                20
+              ],
+              "text": "stuff"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

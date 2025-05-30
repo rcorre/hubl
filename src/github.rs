@@ -18,10 +18,22 @@ pub struct SearchRepository {
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+pub struct Match {
+    pub indices: (usize, usize),
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+pub struct TextMatch {
+    pub fragment: String,
+    pub matches: Vec<Match>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchItem {
     pub url: String,
     pub path: String,
     pub repository: SearchRepository,
+    pub text_matches: Vec<TextMatch>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
@@ -254,6 +266,10 @@ mod tests {
                     repository: SearchRepository {
                         full_name: format!("{name}repo"),
                     },
+                    text_matches: vec![TextMatch {
+                        fragment: "the fragment".into(),
+                        matches: vec![Match { indices: (10, 20) }]
+                    }],
                 },
             );
         }

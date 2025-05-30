@@ -1,12 +1,18 @@
 use anyhow::Result;
 use ratatui::text::{Line, Span, Text};
-use regex::{Regex, RegexBuilder};
-use std::{collections::HashMap, fmt::Display, io::Cursor, path::Path};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Display,
+    io::Cursor,
+    path::Path,
+};
 use syntect::{
     easy::HighlightLines,
     highlighting::{self, Theme, ThemeSet},
     parsing::SyntaxSet,
 };
+
+use crate::github::{SearchItem, TextMatch};
 
 const ANSI_THEME: &[u8] = include_bytes!("ansi.tmTheme");
 
@@ -16,20 +22,22 @@ pub struct PreviewCache {
     cache: HashMap<String, Fragments>, // url->content
     syntax: SyntaxSet,
     theme: Theme,
-    regex: Regex,
+}
+
+impl Default for PreviewCache {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PreviewCache {
-    pub fn new(search_term: &str) -> Result<Self> {
+    pub fn new() -> Self {
         let mut theme_cursor = Cursor::new(ANSI_THEME);
-        Ok(Self {
+        Self {
             cache: HashMap::new(),
             syntax: SyntaxSet::load_defaults_newlines(),
             theme: ThemeSet::load_from_reader(&mut theme_cursor).expect("Loading theme"),
-            regex: RegexBuilder::new(search_term)
-                .case_insensitive(true)
-                .build()?,
-        })
+        }
     }
 
     pub fn contains(&self, url: &str) -> bool {
@@ -44,15 +52,9 @@ impl PreviewCache {
         self.cache.insert(url.into(), vec![]);
     }
 
-    pub fn insert(
-        &mut self,
-        url: impl Into<String> + Display,
-        file_path: impl AsRef<Path>,
-        content: &str,
-    ) -> Result<()> {
-        tracing::debug!("Caching content for: {}", url);
-        let syntax = file_path
-            .as_ref()
+    pub fn insert(&mut self, item: SearchItem, content: &str) -> Result<()> {
+        tracing::debug!("Caching content for: {}", item.url);
+        let syntax = Path::new(&item.path)
             .extension()
             .and_then(|ext| ext.to_str())
             .and_then(|ext| self.syntax.find_syntax_by_extension(ext))
@@ -67,9 +69,11 @@ impl PreviewCache {
 
         let mut matching_lines = Vec::new();
         let mut highlighted_lines = Vec::new();
+        let fragments = matching_strings(&item.text_matches);
+        tracing::trace!("Finding fragments matching: {fragments:?}");
 
         for (i, line) in content.lines().enumerate() {
-            if self.regex.is_match(line) {
+            if fragments.iter().any(|frag| line.contains(frag)) {
                 matching_lines.push(i);
             }
             highlighted_lines.push(h.highlight_line(line, &self.syntax)?);
@@ -77,11 +81,11 @@ impl PreviewCache {
 
         let spans = line_spans(matching_lines, highlighted_lines.len() - 1);
         if spans.is_empty() {
-            tracing::error!("No matches found: {}", url);
+            tracing::error!("No matches found: {}", item.url);
         }
 
         self.cache.insert(
-            url.into(),
+            item.url,
             spans
                 .into_iter()
                 .map(|range| {
@@ -91,6 +95,20 @@ impl PreviewCache {
         );
         Ok(())
     }
+}
+
+// Github doesn't tell us where in the document a fragment matched.
+// Instead, we have to pick out each matching fragment and try to find it ourselves.
+fn matching_strings(matches: &Vec<TextMatch>) -> HashSet<&str> {
+    let mut set = HashSet::new();
+    for m in matches {
+        let fragment = &m.fragment;
+        for m in &m.matches {
+            let (start, end) = m.indices;
+            set.insert(&fragment[start..end]);
+        }
+    }
+    set
 }
 
 // Given a list of matching line numbers, return a list of start/end pairs that encompass matching lines with context

@@ -13,7 +13,7 @@ use nucleo::{
 use ratatui::{
     layout::{Constraint, Direction, Layout, Position},
     style::{Style, Stylize},
-    widgets::{Block, Borders, List, Paragraph, Row, Table, TableState},
+    widgets::{Block, Borders, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use std::sync::Arc;
@@ -86,7 +86,7 @@ impl App {
             exit: false,
             table_state: TableState::default().with_selected(Some(0)),
             content_client: ContentClient::new(github),
-            preview_cache: PreviewCache::new(&cli.query)?,
+            preview_cache: PreviewCache::new(),
             nucleo,
             nucleo_rx,
             pattern: String::new(),
@@ -242,7 +242,7 @@ impl App {
     }
 
     fn process_content(&mut self, item: SearchItem, content: String) -> Result<()> {
-        self.preview_cache.insert(item.url, item.path, &content)
+        self.preview_cache.insert(item, &content)
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {

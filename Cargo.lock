@@ -673,7 +673,6 @@ dependencies = [
  "http-test-server",
  "nucleo",
  "ratatui",
- "regex",
  "reqwest",
  "serde",
  "syntect",
