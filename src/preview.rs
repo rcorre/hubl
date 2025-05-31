@@ -8,7 +8,7 @@ use std::{
 };
 use syntect::{
     easy::HighlightLines,
-    highlighting::{self, Theme, ThemeSet},
+    highlighting::{self, Color, FontStyle, Theme, ThemeSet},
     parsing::SyntaxSet,
 };
 
@@ -73,10 +73,25 @@ impl PreviewCache {
         tracing::trace!("Finding fragments matching: {fragments:?}");
 
         for (i, line) in content.lines().enumerate() {
-            if fragments.iter().any(|frag| line.contains(frag)) {
+            let mut highlights = h.highlight_line(line, &self.syntax)?;
+            if let Some(frag) = fragments.iter().find(|&frag| line.contains(frag)) {
+                tracing::trace!("Matched '{frag}' on line {i}");
                 matching_lines.push(i);
+                for (style, s) in highlights.iter_mut() {
+                    if !s.contains(frag) {
+                        continue;
+                    }
+                    // Use the ANSI red slot
+                    style.foreground = Color {
+                        r: 1,
+                        g: 0,
+                        b: 0,
+                        a: 0,
+                    };
+                    style.font_style = FontStyle::BOLD;
+                }
             }
-            highlighted_lines.push(h.highlight_line(line, &self.syntax)?);
+            highlighted_lines.push(highlights);
         }
 
         let spans = line_spans(matching_lines, highlighted_lines.len() - 1);
@@ -119,7 +134,9 @@ fn line_spans(line_numbers: Vec<usize>, max_line: usize) -> Vec<std::ops::RangeI
 
     let mut spans = Vec::new();
     for n in line_numbers {
-        spans.push(n.saturating_sub(CONTEXT_LINES)..=max_line.min(n + CONTEXT_LINES));
+        let range = n.saturating_sub(CONTEXT_LINES)..=max_line.min(n + CONTEXT_LINES);
+        tracing::trace!("Including preview range '{range:?}'");
+        spans.push(range);
     }
     spans
 }

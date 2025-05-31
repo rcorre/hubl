@@ -194,9 +194,9 @@ impl App {
             .constraints(
                 preview_fragments
                     .iter()
+                    .take(3) // TODO: split into as many as can fit the space
                     .map(|frag| Constraint::Length(frag.lines.len() as u16)),
             )
-            // .margin(1) // to account for the border we draw around everything
             .split(preview_area);
 
         for (area, frag) in preview_areas.iter().zip(preview_fragments) {
