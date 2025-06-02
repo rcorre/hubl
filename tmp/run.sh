@@ -1,0 +1,1 @@
+jq '{"query": $ARGS.positional[0], "variables": $ARGS.positional[1]}' --args "$(cat $1)" --args "$(cat variables.json)" -n | curl -s -H "Authorization: bearer $(gh auth token)" -X POST -d @- https://api.github.com/graphql | jq .

@@ -1,0 +1,21 @@
+query {
+  repository(owner:"octocat", name:"Hello-World") {
+    issues(first:2, states:CLOSED) {
+      edges {
+        node {
+          number
+          title
+          url
+          body
+          # comments(first:20) {
+          #   edges {
+          #     node {
+          #       body
+          #     }
+          #   }
+          # }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6387 @@
+{
+  "data": {
+    "__type": {
+      "name": "Repository",
+      "kind": "OBJECT",
+      "description": "A repository contains the content for a project.",
+      "fields": [
+        {
+          "name": "allowUpdateBranch",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "archivedAt",
+          "type": {
+            "name": "DateTime",
+            "description": "An ISO-8601 encoded UTC date string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "assignableUsers",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "autoMergeAllowed",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "branchProtectionRules",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "codeOfConduct",
+          "type": {
+            "name": "CodeOfConduct",
+            "description": "The Code of Conduct for a repository",
+            "fields": [
+              {
+                "name": "body",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "key",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "codeowners",
+          "type": {
+            "name": "RepositoryCodeowners",
+            "description": "Information extracted from a repository's `CODEOWNERS` file.",
+            "fields": [
+              {
+                "name": "errors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "collaborators",
+          "type": {
+            "name": "RepositoryCollaboratorConnection",
+            "description": "The connection type for User.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "commitComments",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "contactLinks",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "contributingGuidelines",
+          "type": {
+            "name": "ContributingGuidelines",
+            "description": "The Contributing Guidelines for a repository.",
+            "fields": [
+              {
+                "name": "body",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "databaseId",
+          "type": {
+            "name": "Int",
+            "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+            "fields": null
+          }
+        },
+        {
+          "name": "defaultBranchRef",
+          "type": {
+            "name": "Ref",
+            "description": "Represents a Git reference.",
+            "fields": [
+              {
+                "name": "associatedPullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "branchProtectionRule",
+                "type": {
+                  "name": "BranchProtectionRule",
+                  "description": "A branch protection rule."
+                }
+              },
+              {
+                "name": "compare",
+                "type": {
+                  "name": "Comparison",
+                  "description": "Represents a comparison between two commit revisions."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "prefix",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "refUpdateRule",
+                "type": {
+                  "name": "RefUpdateRule",
+                  "description": "Branch protection rules that are enforced on the viewer."
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "rules",
+                "type": {
+                  "name": "RepositoryRuleConnection",
+                  "description": "The connection type for RepositoryRule."
+                }
+              },
+              {
+                "name": "target",
+                "type": {
+                  "name": "GitObject",
+                  "description": "Represents a Git object."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "deleteBranchOnMerge",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "dependencyGraphManifests",
+          "type": {
+            "name": "DependencyGraphManifestConnection",
+            "description": "The connection type for DependencyGraphManifest.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "deployKeys",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "deployments",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "description",
+          "type": {
+            "name": "String",
+            "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text.",
+            "fields": null
+          }
+        },
+        {
+          "name": "descriptionHTML",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "discussion",
+          "type": {
+            "name": "Discussion",
+            "description": "A discussion in a repository.",
+            "fields": [
+              {
+                "name": "activeLockReason",
+                "type": {
+                  "name": "LockReason",
+                  "description": "The possible reasons that an issue or pull request was locked."
+                }
+              },
+              {
+                "name": "answer",
+                "type": {
+                  "name": "DiscussionComment",
+                  "description": "A comment on a discussion."
+                }
+              },
+              {
+                "name": "answerChosenAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "answerChosenBy",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "author",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "authorAssociation",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "body",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyText",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "category",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "comments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdViaEmail",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "editor",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "includesCreatedEdit",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isAnswered",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "labels",
+                "type": {
+                  "name": "LabelConnection",
+                  "description": "The connection type for Label."
+                }
+              },
+              {
+                "name": "lastEditedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "locked",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "poll",
+                "type": {
+                  "name": "DiscussionPoll",
+                  "description": "A poll for a discussion."
+                }
+              },
+              {
+                "name": "publishedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "reactionGroups",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reactions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stateReason",
+                "type": {
+                  "name": "DiscussionStateReason",
+                  "description": "The possible state reasons of a discussion."
+                }
+              },
+              {
+                "name": "title",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "upvoteCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "userContentEdits",
+                "type": {
+                  "name": "UserContentEditConnection",
+                  "description": "A list of edits to content."
+                }
+              },
+              {
+                "name": "viewerCanClose",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanDelete",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanLabel",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReact",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReopen",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanSubscribe",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpvote",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerDidAuthor",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerHasUpvoted",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerSubscription",
+                "type": {
+                  "name": "SubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "discussionCategories",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "discussionCategory",
+          "type": {
+            "name": "DiscussionCategory",
+            "description": "A category for discussions in a repository.",
+            "fields": [
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "emoji",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "emojiHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isAnswerable",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "slug",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "discussions",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "diskUsage",
+          "type": {
+            "name": "Int",
+            "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+            "fields": null
+          }
+        },
+        {
+          "name": "environment",
+          "type": {
+            "name": "Environment",
+            "description": "An environment.",
+            "fields": [
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPinned",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "latestCompletedDeployment",
+                "type": {
+                  "name": "Deployment",
+                  "description": "Represents triggered deployment instance."
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pinnedPosition",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "protectionRules",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "environments",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "forkCount",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "forkingAllowed",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "forks",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "fundingLinks",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasDiscussionsEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasIssuesEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasProjectsEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasSponsorshipsEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasVulnerabilityAlertsEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "hasWikiEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "homepageUrl",
+          "type": {
+            "name": "URI",
+            "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "interactionAbility",
+          "type": {
+            "name": "RepositoryInteractionAbility",
+            "description": "Repository interaction limit that applies to this object.",
+            "fields": [
+              {
+                "name": "expiresAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "limit",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "origin",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "isArchived",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isBlankIssuesEnabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isDisabled",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isEmpty",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isFork",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isInOrganization",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isLocked",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isMirror",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isPrivate",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isSecurityPolicyEnabled",
+          "type": {
+            "name": "Boolean",
+            "description": "Represents `true` or `false` values.",
+            "fields": null
+          }
+        },
+        {
+          "name": "isTemplate",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "isUserConfigurationRepository",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "issue",
+          "type": {
+            "name": "Issue",
+            "description": "An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project.",
+            "fields": [
+              {
+                "name": "activeLockReason",
+                "type": {
+                  "name": "LockReason",
+                  "description": "The possible reasons that an issue or pull request was locked."
+                }
+              },
+              {
+                "name": "assignedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "assignees",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "author",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "authorAssociation",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "body",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyText",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "closedByPullRequestsReferences",
+                "type": {
+                  "name": "PullRequestConnection",
+                  "description": "The connection type for PullRequest."
+                }
+              },
+              {
+                "name": "comments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdViaEmail",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "duplicateOf",
+                "type": {
+                  "name": "Issue",
+                  "description": "An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project."
+                }
+              },
+              {
+                "name": "editor",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "fullDatabaseId",
+                "type": {
+                  "name": "BigInt",
+                  "description": "Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string."
+                }
+              },
+              {
+                "name": "hovercard",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "includesCreatedEdit",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPinned",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "isReadByViewer",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "issueType",
+                "type": {
+                  "name": "IssueType",
+                  "description": "Represents the type of Issue."
+                }
+              },
+              {
+                "name": "labels",
+                "type": {
+                  "name": "LabelConnection",
+                  "description": "The connection type for Label."
+                }
+              },
+              {
+                "name": "lastEditedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "linkedBranches",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "locked",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "milestone",
+                "type": {
+                  "name": "Milestone",
+                  "description": "Represents a Milestone object on a given repository."
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "parent",
+                "type": {
+                  "name": "Issue",
+                  "description": "An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project."
+                }
+              },
+              {
+                "name": "participants",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectItems",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectV2",
+                "type": {
+                  "name": "ProjectV2",
+                  "description": "New projects that manage issues, pull requests and drafts using tables and boards."
+                }
+              },
+              {
+                "name": "projectsV2",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "publishedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "reactionGroups",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reactions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "state",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stateReason",
+                "type": {
+                  "name": "IssueStateReason",
+                  "description": "The possible state reasons of an issue."
+                }
+              },
+              {
+                "name": "subIssues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "subIssuesSummary",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "suggestedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "timelineItems",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "title",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "titleHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "trackedInIssues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "trackedIssues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "trackedIssuesCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "userContentEdits",
+                "type": {
+                  "name": "UserContentEditConnection",
+                  "description": "A list of edits to content."
+                }
+              },
+              {
+                "name": "viewerCanClose",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanDelete",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanLabel",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReact",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReopen",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanSubscribe",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCannotUpdateReasons",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerDidAuthor",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerSubscription",
+                "type": {
+                  "name": "SubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              },
+              {
+                "name": "viewerThreadSubscriptionFormAction",
+                "type": {
+                  "name": "ThreadSubscriptionFormAction",
+                  "description": "The possible states of a thread subscription form action"
+                }
+              },
+              {
+                "name": "viewerThreadSubscriptionStatus",
+                "type": {
+                  "name": "ThreadSubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "issueOrPullRequest",
+          "type": {
+            "name": "IssueOrPullRequest",
+            "description": "Used for return value of Repository.issueOrPullRequest.",
+            "fields": null
+          }
+        },
+        {
+          "name": "issueTemplates",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "issueType",
+          "type": {
+            "name": "IssueType",
+            "description": "Represents the type of Issue.",
+            "fields": [
+              {
+                "name": "color",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "issueTypes",
+          "type": {
+            "name": "IssueTypeConnection",
+            "description": "The connection type for IssueType.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "issues",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "label",
+          "type": {
+            "name": "Label",
+            "description": "A label for categorizing Issues, Pull Requests, Milestones, or Discussions with a given Repository.",
+            "fields": [
+              {
+                "name": "color",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDefault",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "labels",
+          "type": {
+            "name": "LabelConnection",
+            "description": "The connection type for Label.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "languages",
+          "type": {
+            "name": "LanguageConnection",
+            "description": "A list of languages associated with the parent.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalSize",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "latestRelease",
+          "type": {
+            "name": "Release",
+            "description": "A release contains the content for a release.",
+            "fields": [
+              {
+                "name": "author",
+                "type": {
+                  "name": "User",
+                  "description": "A user is an individual's account on GitHub that owns repositories and can make new content."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "descriptionHTML",
+                "type": {
+                  "name": "HTML",
+                  "description": "A string containing HTML code."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDraft",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isLatest",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPrerelease",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mentions",
+                "type": {
+                  "name": "UserConnection",
+                  "description": "A list of users."
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "publishedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "reactionGroups",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reactions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "releaseAssets",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "shortDescriptionHTML",
+                "type": {
+                  "name": "HTML",
+                  "description": "A string containing HTML code."
+                }
+              },
+              {
+                "name": "tag",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "tagCommit",
+                "type": {
+                  "name": "Commit",
+                  "description": "Represents a Git commit."
+                }
+              },
+              {
+                "name": "tagName",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReact",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "licenseInfo",
+          "type": {
+            "name": "License",
+            "description": "A repository's open source license",
+            "fields": [
+              {
+                "name": "body",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "conditions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "featured",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hidden",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "implementation",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "key",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "limitations",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nickname",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "permissions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pseudoLicense",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "spdxId",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "lockReason",
+          "type": {
+            "name": "RepositoryLockReason",
+            "description": "The possible reasons a given repository could be in a locked state.",
+            "fields": null
+          }
+        },
+        {
+          "name": "mentionableUsers",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "mergeCommitAllowed",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "mergeCommitMessage",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "mergeCommitTitle",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "mergeQueue",
+          "type": {
+            "name": "MergeQueue",
+            "description": "The queue of pull request entries to be merged into a protected branch in a repository.",
+            "fields": [
+              {
+                "name": "configuration",
+                "type": {
+                  "name": "MergeQueueConfiguration",
+                  "description": "Configuration for a MergeQueue"
+                }
+              },
+              {
+                "name": "entries",
+                "type": {
+                  "name": "MergeQueueEntryConnection",
+                  "description": "The connection type for MergeQueueEntry."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nextEntryEstimatedTimeToMerge",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "milestone",
+          "type": {
+            "name": "Milestone",
+            "description": "Represents a Milestone object on a given repository.",
+            "fields": [
+              {
+                "name": "closed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "closedIssueCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "creator",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "descriptionHTML",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "dueOn",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "openIssueCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "progressPercentage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "state",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "title",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanClose",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReopen",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "milestones",
+          "type": {
+            "name": "MilestoneConnection",
+            "description": "The connection type for Milestone.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mirrorUrl",
+          "type": {
+            "name": "URI",
+            "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "nameWithOwner",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "object",
+          "type": {
+            "name": "GitObject",
+            "description": "Represents a Git object.",
+            "fields": [
+              {
+                "name": "abbreviatedOid",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "commitResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "commitUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "oid",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "openGraphImageUrl",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "owner",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "packages",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "parent",
+          "type": {
+            "name": "Repository",
+            "description": "A repository contains the content for a project.",
+            "fields": [
+              {
+                "name": "allowUpdateBranch",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "archivedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "assignableUsers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "autoMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "branchProtectionRules",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "codeOfConduct",
+                "type": {
+                  "name": "CodeOfConduct",
+                  "description": "The Code of Conduct for a repository"
+                }
+              },
+              {
+                "name": "codeowners",
+                "type": {
+                  "name": "RepositoryCodeowners",
+                  "description": "Information extracted from a repository's `CODEOWNERS` file."
+                }
+              },
+              {
+                "name": "collaborators",
+                "type": {
+                  "name": "RepositoryCollaboratorConnection",
+                  "description": "The connection type for User."
+                }
+              },
+              {
+                "name": "commitComments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "contactLinks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "contributingGuidelines",
+                "type": {
+                  "name": "ContributingGuidelines",
+                  "description": "The Contributing Guidelines for a repository."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "defaultBranchRef",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "deleteBranchOnMerge",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "dependencyGraphManifests",
+                "type": {
+                  "name": "DependencyGraphManifestConnection",
+                  "description": "The connection type for DependencyGraphManifest."
+                }
+              },
+              {
+                "name": "deployKeys",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "deployments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "descriptionHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "discussion",
+                "type": {
+                  "name": "Discussion",
+                  "description": "A discussion in a repository."
+                }
+              },
+              {
+                "name": "discussionCategories",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "discussionCategory",
+                "type": {
+                  "name": "DiscussionCategory",
+                  "description": "A category for discussions in a repository."
+                }
+              },
+              {
+                "name": "discussions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "diskUsage",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "environment",
+                "type": {
+                  "name": "Environment",
+                  "description": "An environment."
+                }
+              },
+              {
+                "name": "environments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forkCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forkingAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "fundingLinks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasDiscussionsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasIssuesEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasProjectsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasSponsorshipsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasVulnerabilityAlertsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasWikiEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "homepageUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "interactionAbility",
+                "type": {
+                  "name": "RepositoryInteractionAbility",
+                  "description": "Repository interaction limit that applies to this object."
+                }
+              },
+              {
+                "name": "isArchived",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isBlankIssuesEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDisabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isEmpty",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isFork",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isInOrganization",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isLocked",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isMirror",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPrivate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isSecurityPolicyEnabled",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "isTemplate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isUserConfigurationRepository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issue",
+                "type": {
+                  "name": "Issue",
+                  "description": "An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project."
+                }
+              },
+              {
+                "name": "issueOrPullRequest",
+                "type": {
+                  "name": "IssueOrPullRequest",
+                  "description": "Used for return value of Repository.issueOrPullRequest."
+                }
+              },
+              {
+                "name": "issueTemplates",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issueType",
+                "type": {
+                  "name": "IssueType",
+                  "description": "Represents the type of Issue."
+                }
+              },
+              {
+                "name": "issueTypes",
+                "type": {
+                  "name": "IssueTypeConnection",
+                  "description": "The connection type for IssueType."
+                }
+              },
+              {
+                "name": "issues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "label",
+                "type": {
+                  "name": "Label",
+                  "description": "A label for categorizing Issues, Pull Requests, Milestones, or Discussions with a given Repository."
+                }
+              },
+              {
+                "name": "labels",
+                "type": {
+                  "name": "LabelConnection",
+                  "description": "The connection type for Label."
+                }
+              },
+              {
+                "name": "languages",
+                "type": {
+                  "name": "LanguageConnection",
+                  "description": "A list of languages associated with the parent."
+                }
+              },
+              {
+                "name": "latestRelease",
+                "type": {
+                  "name": "Release",
+                  "description": "A release contains the content for a release."
+                }
+              },
+              {
+                "name": "licenseInfo",
+                "type": {
+                  "name": "License",
+                  "description": "A repository's open source license"
+                }
+              },
+              {
+                "name": "lockReason",
+                "type": {
+                  "name": "RepositoryLockReason",
+                  "description": "The possible reasons a given repository could be in a locked state."
+                }
+              },
+              {
+                "name": "mentionableUsers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitMessage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitTitle",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeQueue",
+                "type": {
+                  "name": "MergeQueue",
+                  "description": "The queue of pull request entries to be merged into a protected branch in a repository."
+                }
+              },
+              {
+                "name": "milestone",
+                "type": {
+                  "name": "Milestone",
+                  "description": "Represents a Milestone object on a given repository."
+                }
+              },
+              {
+                "name": "milestones",
+                "type": {
+                  "name": "MilestoneConnection",
+                  "description": "The connection type for Milestone."
+                }
+              },
+              {
+                "name": "mirrorUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nameWithOwner",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "object",
+                "type": {
+                  "name": "GitObject",
+                  "description": "Represents a Git object."
+                }
+              },
+              {
+                "name": "openGraphImageUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "owner",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "packages",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "parent",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "pinnedDiscussions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pinnedEnvironments",
+                "type": {
+                  "name": "PinnedEnvironmentConnection",
+                  "description": "The connection type for PinnedEnvironment."
+                }
+              },
+              {
+                "name": "pinnedIssues",
+                "type": {
+                  "name": "PinnedIssueConnection",
+                  "description": "The connection type for PinnedIssue."
+                }
+              },
+              {
+                "name": "planFeatures",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "primaryLanguage",
+                "type": {
+                  "name": "Language",
+                  "description": "Represents a given language found in repositories."
+                }
+              },
+              {
+                "name": "projectV2",
+                "type": {
+                  "name": "ProjectV2",
+                  "description": "New projects that manage issues, pull requests and drafts using tables and boards."
+                }
+              },
+              {
+                "name": "projectsResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectsUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectsV2",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequest",
+                "type": {
+                  "name": "PullRequest",
+                  "description": "A repository pull request."
+                }
+              },
+              {
+                "name": "pullRequestTemplates",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pushedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "rebaseMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "recentProjects",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "ref",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "refs",
+                "type": {
+                  "name": "RefConnection",
+                  "description": "The connection type for Ref."
+                }
+              },
+              {
+                "name": "release",
+                "type": {
+                  "name": "Release",
+                  "description": "A release contains the content for a release."
+                }
+              },
+              {
+                "name": "releases",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repositoryTopics",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "ruleset",
+                "type": {
+                  "name": "RepositoryRuleset",
+                  "description": "A repository ruleset."
+                }
+              },
+              {
+                "name": "rulesets",
+                "type": {
+                  "name": "RepositoryRulesetConnection",
+                  "description": "The connection type for RepositoryRuleset."
+                }
+              },
+              {
+                "name": "securityPolicyUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "shortDescriptionHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeCommitMessage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeCommitTitle",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "sshUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stargazerCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stargazers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "submodules",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "suggestedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "tempCloneToken",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "templateRepository",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "usesCustomOpenGraphImage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanAdminister",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanSubscribe",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdateTopics",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerDefaultCommitEmail",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "viewerDefaultMergeMethod",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerHasStarred",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerPermission",
+                "type": {
+                  "name": "RepositoryPermission",
+                  "description": "The access level to a repository"
+                }
+              },
+              {
+                "name": "viewerPossibleCommitEmails",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerSubscription",
+                "type": {
+                  "name": "SubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              },
+              {
+                "name": "visibility",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "vulnerabilityAlert",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlert",
+                  "description": "A Dependabot alert for a repository with a dependency affected by a security vulnerability."
+                }
+              },
+              {
+                "name": "vulnerabilityAlerts",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlertConnection",
+                  "description": "The connection type for RepositoryVulnerabilityAlert."
+                }
+              },
+              {
+                "name": "watchers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "webCommitSignoffRequired",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pinnedDiscussions",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "pinnedEnvironments",
+          "type": {
+            "name": "PinnedEnvironmentConnection",
+            "description": "The connection type for PinnedEnvironment.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pinnedIssues",
+          "type": {
+            "name": "PinnedIssueConnection",
+            "description": "The connection type for PinnedIssue.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "planFeatures",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "primaryLanguage",
+          "type": {
+            "name": "Language",
+            "description": "Represents a given language found in repositories.",
+            "fields": [
+              {
+                "name": "color",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "projectV2",
+          "type": {
+            "name": "ProjectV2",
+            "description": "New projects that manage issues, pull requests and drafts using tables and boards.",
+            "fields": [
+              {
+                "name": "closed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "creator",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "field",
+                "type": {
+                  "name": "ProjectV2FieldConfiguration",
+                  "description": "Configurations for project fields."
+                }
+              },
+              {
+                "name": "fields",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "fullDatabaseId",
+                "type": {
+                  "name": "BigInt",
+                  "description": "Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "items",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "owner",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "public",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "readme",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "repositories",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "shortDescription",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "statusUpdates",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "teams",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "template",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "title",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "view",
+                "type": {
+                  "name": "ProjectV2View",
+                  "description": "A view within a ProjectV2."
+                }
+              },
+              {
+                "name": "viewerCanClose",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReopen",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "views",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "workflow",
+                "type": {
+                  "name": "ProjectV2Workflow",
+                  "description": "A workflow inside a project."
+                }
+              },
+              {
+                "name": "workflows",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "projectsResourcePath",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "projectsUrl",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "projectsV2",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "pullRequest",
+          "type": {
+            "name": "PullRequest",
+            "description": "A repository pull request.",
+            "fields": [
+              {
+                "name": "activeLockReason",
+                "type": {
+                  "name": "LockReason",
+                  "description": "The possible reasons that an issue or pull request was locked."
+                }
+              },
+              {
+                "name": "additions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "assignedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "assignees",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "author",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "authorAssociation",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "autoMergeRequest",
+                "type": {
+                  "name": "AutoMergeRequest",
+                  "description": "Represents an auto-merge request for a pull request"
+                }
+              },
+              {
+                "name": "baseRef",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "baseRefName",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "baseRefOid",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "baseRepository",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "body",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "bodyText",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "canBeRebased",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "changedFiles",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "checksResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "checksUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "closedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "closingIssuesReferences",
+                "type": {
+                  "name": "IssueConnection",
+                  "description": "The connection type for Issue."
+                }
+              },
+              {
+                "name": "comments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "commits",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdViaEmail",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "deletions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "editor",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "files",
+                "type": {
+                  "name": "PullRequestChangedFileConnection",
+                  "description": "The connection type for PullRequestChangedFile."
+                }
+              },
+              {
+                "name": "fullDatabaseId",
+                "type": {
+                  "name": "BigInt",
+                  "description": "Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string."
+                }
+              },
+              {
+                "name": "headRef",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "headRefName",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "headRefOid",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "headRepository",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "headRepositoryOwner",
+                "type": {
+                  "name": "RepositoryOwner",
+                  "description": "Represents an owner of a Repository."
+                }
+              },
+              {
+                "name": "hovercard",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "includesCreatedEdit",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isCrossRepository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDraft",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isInMergeQueue",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isMergeQueueEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isReadByViewer",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "labels",
+                "type": {
+                  "name": "LabelConnection",
+                  "description": "The connection type for Label."
+                }
+              },
+              {
+                "name": "lastEditedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "latestOpinionatedReviews",
+                "type": {
+                  "name": "PullRequestReviewConnection",
+                  "description": "The connection type for PullRequestReview."
+                }
+              },
+              {
+                "name": "latestReviews",
+                "type": {
+                  "name": "PullRequestReviewConnection",
+                  "description": "The connection type for PullRequestReview."
+                }
+              },
+              {
+                "name": "locked",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "maintainerCanModify",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommit",
+                "type": {
+                  "name": "Commit",
+                  "description": "Represents a Git commit."
+                }
+              },
+              {
+                "name": "mergeQueue",
+                "type": {
+                  "name": "MergeQueue",
+                  "description": "The queue of pull request entries to be merged into a protected branch in a repository."
+                }
+              },
+              {
+                "name": "mergeQueueEntry",
+                "type": {
+                  "name": "MergeQueueEntry",
+                  "description": "Entries in a MergeQueue"
+                }
+              },
+              {
+                "name": "mergeStateStatus",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeable",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "merged",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "mergedBy",
+                "type": {
+                  "name": "Actor",
+                  "description": "Represents an object which can take actions on GitHub. Typically a User or Bot."
+                }
+              },
+              {
+                "name": "milestone",
+                "type": {
+                  "name": "Milestone",
+                  "description": "Represents a Milestone object on a given repository."
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "participants",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "permalink",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "potentialMergeCommit",
+                "type": {
+                  "name": "Commit",
+                  "description": "Represents a Git commit."
+                }
+              },
+              {
+                "name": "projectItems",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectV2",
+                "type": {
+                  "name": "ProjectV2",
+                  "description": "New projects that manage issues, pull requests and drafts using tables and boards."
+                }
+              },
+              {
+                "name": "projectsV2",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "publishedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "reactionGroups",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reactions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "revertResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "revertUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reviewDecision",
+                "type": {
+                  "name": "PullRequestReviewDecision",
+                  "description": "The review status of a pull request."
+                }
+              },
+              {
+                "name": "reviewRequests",
+                "type": {
+                  "name": "ReviewRequestConnection",
+                  "description": "The connection type for ReviewRequest."
+                }
+              },
+              {
+                "name": "reviewThreads",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reviews",
+                "type": {
+                  "name": "PullRequestReviewConnection",
+                  "description": "The connection type for PullRequestReview."
+                }
+              },
+              {
+                "name": "state",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "statusCheckRollup",
+                "type": {
+                  "name": "StatusCheckRollup",
+                  "description": "Represents the rollup for both the check runs and status for a commit."
+                }
+              },
+              {
+                "name": "suggestedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "suggestedReviewers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "timelineItems",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "title",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "titleHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCommentsCount",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "userContentEdits",
+                "type": {
+                  "name": "UserContentEditConnection",
+                  "description": "A list of edits to content."
+                }
+              },
+              {
+                "name": "viewerCanApplySuggestion",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanClose",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanDeleteHeadRef",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanDisableAutoMerge",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanEditFiles",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanEnableAutoMerge",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanLabel",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanMergeAsAdmin",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReact",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReopen",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanSubscribe",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdateBranch",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCannotUpdateReasons",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerDidAuthor",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerLatestReview",
+                "type": {
+                  "name": "PullRequestReview",
+                  "description": "A review object for a given pull request."
+                }
+              },
+              {
+                "name": "viewerLatestReviewRequest",
+                "type": {
+                  "name": "ReviewRequest",
+                  "description": "A request for a user to review a pull request."
+                }
+              },
+              {
+                "name": "viewerMergeBodyText",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerMergeHeadlineText",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerSubscription",
+                "type": {
+                  "name": "SubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pullRequestTemplates",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "pullRequests",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "pushedAt",
+          "type": {
+            "name": "DateTime",
+            "description": "An ISO-8601 encoded UTC date string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "rebaseMergeAllowed",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "recentProjects",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "ref",
+          "type": {
+            "name": "Ref",
+            "description": "Represents a Git reference.",
+            "fields": [
+              {
+                "name": "associatedPullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "branchProtectionRule",
+                "type": {
+                  "name": "BranchProtectionRule",
+                  "description": "A branch protection rule."
+                }
+              },
+              {
+                "name": "compare",
+                "type": {
+                  "name": "Comparison",
+                  "description": "Represents a comparison between two commit revisions."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "prefix",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "refUpdateRule",
+                "type": {
+                  "name": "RefUpdateRule",
+                  "description": "Branch protection rules that are enforced on the viewer."
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "rules",
+                "type": {
+                  "name": "RepositoryRuleConnection",
+                  "description": "The connection type for RepositoryRule."
+                }
+              },
+              {
+                "name": "target",
+                "type": {
+                  "name": "GitObject",
+                  "description": "Represents a Git object."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "refs",
+          "type": {
+            "name": "RefConnection",
+            "description": "The connection type for Ref.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "release",
+          "type": {
+            "name": "Release",
+            "description": "A release contains the content for a release.",
+            "fields": [
+              {
+                "name": "author",
+                "type": {
+                  "name": "User",
+                  "description": "A user is an individual's account on GitHub that owns repositories and can make new content."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "descriptionHTML",
+                "type": {
+                  "name": "HTML",
+                  "description": "A string containing HTML code."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDraft",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isLatest",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPrerelease",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mentions",
+                "type": {
+                  "name": "UserConnection",
+                  "description": "A list of users."
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "publishedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "reactionGroups",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "reactions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "releaseAssets",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "shortDescriptionHTML",
+                "type": {
+                  "name": "HTML",
+                  "description": "A string containing HTML code."
+                }
+              },
+              {
+                "name": "tag",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "tagCommit",
+                "type": {
+                  "name": "Commit",
+                  "description": "Represents a Git commit."
+                }
+              },
+              {
+                "name": "tagName",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanReact",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "releases",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "repositoryTopics",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "resourcePath",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "ruleset",
+          "type": {
+            "name": "RepositoryRuleset",
+            "description": "A repository ruleset.",
+            "fields": [
+              {
+                "name": "bypassActors",
+                "type": {
+                  "name": "RepositoryRulesetBypassActorConnection",
+                  "description": "The connection type for RepositoryRulesetBypassActor."
+                }
+              },
+              {
+                "name": "conditions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "enforcement",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "rules",
+                "type": {
+                  "name": "RepositoryRuleConnection",
+                  "description": "The connection type for RepositoryRule."
+                }
+              },
+              {
+                "name": "source",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "target",
+                "type": {
+                  "name": "RepositoryRulesetTarget",
+                  "description": "The targets supported for rulesets."
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "rulesets",
+          "type": {
+            "name": "RepositoryRulesetConnection",
+            "description": "The connection type for RepositoryRuleset.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "securityPolicyUrl",
+          "type": {
+            "name": "URI",
+            "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "shortDescriptionHTML",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "squashMergeAllowed",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "squashMergeCommitMessage",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "squashMergeCommitTitle",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "sshUrl",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "stargazerCount",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "stargazers",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "submodules",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "suggestedActors",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "tempCloneToken",
+          "type": {
+            "name": "String",
+            "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text.",
+            "fields": null
+          }
+        },
+        {
+          "name": "templateRepository",
+          "type": {
+            "name": "Repository",
+            "description": "A repository contains the content for a project.",
+            "fields": [
+              {
+                "name": "allowUpdateBranch",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "archivedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "assignableUsers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "autoMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "branchProtectionRules",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "codeOfConduct",
+                "type": {
+                  "name": "CodeOfConduct",
+                  "description": "The Code of Conduct for a repository"
+                }
+              },
+              {
+                "name": "codeowners",
+                "type": {
+                  "name": "RepositoryCodeowners",
+                  "description": "Information extracted from a repository's `CODEOWNERS` file."
+                }
+              },
+              {
+                "name": "collaborators",
+                "type": {
+                  "name": "RepositoryCollaboratorConnection",
+                  "description": "The connection type for User."
+                }
+              },
+              {
+                "name": "commitComments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "contactLinks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "contributingGuidelines",
+                "type": {
+                  "name": "ContributingGuidelines",
+                  "description": "The Contributing Guidelines for a repository."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "databaseId",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "defaultBranchRef",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "deleteBranchOnMerge",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "dependencyGraphManifests",
+                "type": {
+                  "name": "DependencyGraphManifestConnection",
+                  "description": "The connection type for DependencyGraphManifest."
+                }
+              },
+              {
+                "name": "deployKeys",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "deployments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "description",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "descriptionHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "discussion",
+                "type": {
+                  "name": "Discussion",
+                  "description": "A discussion in a repository."
+                }
+              },
+              {
+                "name": "discussionCategories",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "discussionCategory",
+                "type": {
+                  "name": "DiscussionCategory",
+                  "description": "A category for discussions in a repository."
+                }
+              },
+              {
+                "name": "discussions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "diskUsage",
+                "type": {
+                  "name": "Int",
+                  "description": "Represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+                }
+              },
+              {
+                "name": "environment",
+                "type": {
+                  "name": "Environment",
+                  "description": "An environment."
+                }
+              },
+              {
+                "name": "environments",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forkCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forkingAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "forks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "fundingLinks",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasDiscussionsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasIssuesEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasProjectsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasSponsorshipsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasVulnerabilityAlertsEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "hasWikiEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "homepageUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "interactionAbility",
+                "type": {
+                  "name": "RepositoryInteractionAbility",
+                  "description": "Repository interaction limit that applies to this object."
+                }
+              },
+              {
+                "name": "isArchived",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isBlankIssuesEnabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isDisabled",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isEmpty",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isFork",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isInOrganization",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isLocked",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isMirror",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isPrivate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isSecurityPolicyEnabled",
+                "type": {
+                  "name": "Boolean",
+                  "description": "Represents `true` or `false` values."
+                }
+              },
+              {
+                "name": "isTemplate",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "isUserConfigurationRepository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issue",
+                "type": {
+                  "name": "Issue",
+                  "description": "An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project."
+                }
+              },
+              {
+                "name": "issueOrPullRequest",
+                "type": {
+                  "name": "IssueOrPullRequest",
+                  "description": "Used for return value of Repository.issueOrPullRequest."
+                }
+              },
+              {
+                "name": "issueTemplates",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "issueType",
+                "type": {
+                  "name": "IssueType",
+                  "description": "Represents the type of Issue."
+                }
+              },
+              {
+                "name": "issueTypes",
+                "type": {
+                  "name": "IssueTypeConnection",
+                  "description": "The connection type for IssueType."
+                }
+              },
+              {
+                "name": "issues",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "label",
+                "type": {
+                  "name": "Label",
+                  "description": "A label for categorizing Issues, Pull Requests, Milestones, or Discussions with a given Repository."
+                }
+              },
+              {
+                "name": "labels",
+                "type": {
+                  "name": "LabelConnection",
+                  "description": "The connection type for Label."
+                }
+              },
+              {
+                "name": "languages",
+                "type": {
+                  "name": "LanguageConnection",
+                  "description": "A list of languages associated with the parent."
+                }
+              },
+              {
+                "name": "latestRelease",
+                "type": {
+                  "name": "Release",
+                  "description": "A release contains the content for a release."
+                }
+              },
+              {
+                "name": "licenseInfo",
+                "type": {
+                  "name": "License",
+                  "description": "A repository's open source license"
+                }
+              },
+              {
+                "name": "lockReason",
+                "type": {
+                  "name": "RepositoryLockReason",
+                  "description": "The possible reasons a given repository could be in a locked state."
+                }
+              },
+              {
+                "name": "mentionableUsers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitMessage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeCommitTitle",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "mergeQueue",
+                "type": {
+                  "name": "MergeQueue",
+                  "description": "The queue of pull request entries to be merged into a protected branch in a repository."
+                }
+              },
+              {
+                "name": "milestone",
+                "type": {
+                  "name": "Milestone",
+                  "description": "Represents a Milestone object on a given repository."
+                }
+              },
+              {
+                "name": "milestones",
+                "type": {
+                  "name": "MilestoneConnection",
+                  "description": "The connection type for Milestone."
+                }
+              },
+              {
+                "name": "mirrorUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "name",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nameWithOwner",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "object",
+                "type": {
+                  "name": "GitObject",
+                  "description": "Represents a Git object."
+                }
+              },
+              {
+                "name": "openGraphImageUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "owner",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "packages",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "parent",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "pinnedDiscussions",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pinnedEnvironments",
+                "type": {
+                  "name": "PinnedEnvironmentConnection",
+                  "description": "The connection type for PinnedEnvironment."
+                }
+              },
+              {
+                "name": "pinnedIssues",
+                "type": {
+                  "name": "PinnedIssueConnection",
+                  "description": "The connection type for PinnedIssue."
+                }
+              },
+              {
+                "name": "planFeatures",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "primaryLanguage",
+                "type": {
+                  "name": "Language",
+                  "description": "Represents a given language found in repositories."
+                }
+              },
+              {
+                "name": "projectV2",
+                "type": {
+                  "name": "ProjectV2",
+                  "description": "New projects that manage issues, pull requests and drafts using tables and boards."
+                }
+              },
+              {
+                "name": "projectsResourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectsUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "projectsV2",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequest",
+                "type": {
+                  "name": "PullRequest",
+                  "description": "A repository pull request."
+                }
+              },
+              {
+                "name": "pullRequestTemplates",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pullRequests",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pushedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "rebaseMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "recentProjects",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "ref",
+                "type": {
+                  "name": "Ref",
+                  "description": "Represents a Git reference."
+                }
+              },
+              {
+                "name": "refs",
+                "type": {
+                  "name": "RefConnection",
+                  "description": "The connection type for Ref."
+                }
+              },
+              {
+                "name": "release",
+                "type": {
+                  "name": "Release",
+                  "description": "A release contains the content for a release."
+                }
+              },
+              {
+                "name": "releases",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repositoryTopics",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "ruleset",
+                "type": {
+                  "name": "RepositoryRuleset",
+                  "description": "A repository ruleset."
+                }
+              },
+              {
+                "name": "rulesets",
+                "type": {
+                  "name": "RepositoryRulesetConnection",
+                  "description": "The connection type for RepositoryRuleset."
+                }
+              },
+              {
+                "name": "securityPolicyUrl",
+                "type": {
+                  "name": "URI",
+                  "description": "An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string."
+                }
+              },
+              {
+                "name": "shortDescriptionHTML",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeAllowed",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeCommitMessage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "squashMergeCommitTitle",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "sshUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stargazerCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "stargazers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "submodules",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "suggestedActors",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "tempCloneToken",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "templateRepository",
+                "type": {
+                  "name": "Repository",
+                  "description": "A repository contains the content for a project."
+                }
+              },
+              {
+                "name": "updatedAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "usesCustomOpenGraphImage",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanAdminister",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanSubscribe",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerCanUpdateTopics",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerDefaultCommitEmail",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "viewerDefaultMergeMethod",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerHasStarred",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerPermission",
+                "type": {
+                  "name": "RepositoryPermission",
+                  "description": "The access level to a repository"
+                }
+              },
+              {
+                "name": "viewerPossibleCommitEmails",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "viewerSubscription",
+                "type": {
+                  "name": "SubscriptionState",
+                  "description": "The possible states of a subscription."
+                }
+              },
+              {
+                "name": "visibility",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "vulnerabilityAlert",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlert",
+                  "description": "A Dependabot alert for a repository with a dependency affected by a security vulnerability."
+                }
+              },
+              {
+                "name": "vulnerabilityAlerts",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlertConnection",
+                  "description": "The connection type for RepositoryVulnerabilityAlert."
+                }
+              },
+              {
+                "name": "watchers",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "webCommitSignoffRequired",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "url",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "usesCustomOpenGraphImage",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerCanAdminister",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerCanSubscribe",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerCanUpdateTopics",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerDefaultCommitEmail",
+          "type": {
+            "name": "String",
+            "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text.",
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerDefaultMergeMethod",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerHasStarred",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerPermission",
+          "type": {
+            "name": "RepositoryPermission",
+            "description": "The access level to a repository",
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerPossibleCommitEmails",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "viewerSubscription",
+          "type": {
+            "name": "SubscriptionState",
+            "description": "The possible states of a subscription.",
+            "fields": null
+          }
+        },
+        {
+          "name": "visibility",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "vulnerabilityAlert",
+          "type": {
+            "name": "RepositoryVulnerabilityAlert",
+            "description": "A Dependabot alert for a repository with a dependency affected by a security vulnerability.",
+            "fields": [
+              {
+                "name": "autoDismissedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "createdAt",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "dependabotUpdate",
+                "type": {
+                  "name": "DependabotUpdate",
+                  "description": "A Dependabot Update for a dependency in a repository"
+                }
+              },
+              {
+                "name": "dependencyRelationship",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlertDependencyRelationship",
+                  "description": "The possible relationships of an alert's dependency."
+                }
+              },
+              {
+                "name": "dependencyScope",
+                "type": {
+                  "name": "RepositoryVulnerabilityAlertDependencyScope",
+                  "description": "The possible scopes of an alert's dependency."
+                }
+              },
+              {
+                "name": "dismissComment",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "dismissReason",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              },
+              {
+                "name": "dismissedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "dismisser",
+                "type": {
+                  "name": "User",
+                  "description": "A user is an individual's account on GitHub that owns repositories and can make new content."
+                }
+              },
+              {
+                "name": "fixedAt",
+                "type": {
+                  "name": "DateTime",
+                  "description": "An ISO-8601 encoded UTC date string."
+                }
+              },
+              {
+                "name": "id",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "number",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "repository",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "securityAdvisory",
+                "type": {
+                  "name": "SecurityAdvisory",
+                  "description": "A GitHub Security Advisory"
+                }
+              },
+              {
+                "name": "securityVulnerability",
+                "type": {
+                  "name": "SecurityVulnerability",
+                  "description": "An individual vulnerability within an Advisory"
+                }
+              },
+              {
+                "name": "state",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "vulnerableManifestFilename",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "vulnerableManifestPath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "vulnerableRequirements",
+                "type": {
+                  "name": "String",
+                  "description": "Represents textual data as UTF-8 character sequences. This type is most often used by GraphQL to represent free-form human-readable text."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "vulnerabilityAlerts",
+          "type": {
+            "name": "RepositoryVulnerabilityAlertConnection",
+            "description": "The connection type for RepositoryVulnerabilityAlert.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "watchers",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "webCommitSignoffRequired",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        }
+      ]
+    }
+  }
+}

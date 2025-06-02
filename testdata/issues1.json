@@ -1,0 +1,43 @@
+{
+  "data": {
+    "search": {
+      "nodes": [
+        {
+          "__typename": "PullRequest",
+          "number": 4005,
+          "title": "new one",
+          "url": "https://github.com/octocat/Hello-World/pull/4005",
+          "body": "",
+          "author": {
+            "login": "AD9818"
+          }
+        },
+        {
+          "__typename": "Issue",
+          "number": 4004,
+          "title": "MCP Server Test",
+          "url": "https://github.com/octocat/Hello-World/issues/4004",
+          "body": "This is a test issue created via the GitHub MCP server",
+          "author": {
+            "login": "wujisanren"
+          }
+        }
+      ],
+      "issueCount": 3410,
+      "pageInfo": {
+        "endCursor": "Y3Vyc29yOjI=",
+        "startCursor": "Y3Vyc29yOjE=",
+        "hasNextPage": true,
+        "hasPreviousPage": false
+      }
+    },
+    "rateLimit": {
+      "cost": 1,
+      "limit": 5000,
+      "nodeCount": 2,
+      "remaining": 4989,
+      "resetAt": "2025-06-01T17:45:18Z",
+      "used": 11
+    }
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "data": {
+    "__type": {
+      "name": "Comment",
+      "kind": "INTERFACE",
+      "description": "Represents a comment.",
+      "fields": [
+        {
+          "name": "author",
+          "type": {
+            "name": "Actor",
+            "description": "Represents an object which can take actions on GitHub. Typically a User or Bot.",
+            "fields": [
+              {
+                "name": "avatarUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "login",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "authorAssociation",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "body",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "bodyHTML",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "bodyText",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "createdViaEmail",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "editor",
+          "type": {
+            "name": "Actor",
+            "description": "Represents an object which can take actions on GitHub. Typically a User or Bot.",
+            "fields": [
+              {
+                "name": "avatarUrl",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "login",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "resourcePath",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "url",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "includesCreatedEdit",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "lastEditedAt",
+          "type": {
+            "name": "DateTime",
+            "description": "An ISO-8601 encoded UTC date string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "publishedAt",
+          "type": {
+            "name": "DateTime",
+            "description": "An ISO-8601 encoded UTC date string.",
+            "fields": null
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        },
+        {
+          "name": "userContentEdits",
+          "type": {
+            "name": "UserContentEditConnection",
+            "description": "A list of edits to content.",
+            "fields": [
+              {
+                "name": "edges",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "nodes",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "pageInfo",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              },
+              {
+                "name": "totalCount",
+                "type": {
+                  "name": null,
+                  "description": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "viewerDidAuthor",
+          "type": {
+            "name": null,
+            "description": null,
+            "fields": null
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+query($query:String!, $pageSize:Int!, $after:String) {
+  search(query: $query, type: ISSUE, first: $pageSize, after: $after) {
+    nodes {
+      ... on Issue {
+        __typename
+        number
+        title
+        url
+        body
+        author {
+          login
+        }
+      }
+      ... on PullRequest {
+        __typename
+        number
+        title
+        url
+        body
+        author {
+          login
+        }
+      }
+    }
+    issueCount
+    pageInfo {
+      endCursor
+      startCursor
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+  rateLimit {
+    cost
+    limit
+    nodeCount
+    remaining
+    resetAt
+    used
+  }
+}
