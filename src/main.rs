@@ -3,7 +3,9 @@ use clap::Parser;
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use futures::{FutureExt as _, StreamExt as _};
 use hubl::{
-    github::{ContentClient, Github, SearchItem},
+    github::code,
+    github::code::{ContentClient, SearchItem},
+    github::Github,
     preview::PreviewCache,
 };
 use nucleo::{
@@ -71,7 +73,8 @@ impl App {
             1,
         );
         let injector = nucleo.injector();
-        github.search_code(
+        code::search_code(
+            github.clone(),
             &cli.query,
             cli.pages,
             Arc::new(move |result| {
@@ -361,7 +364,10 @@ async fn main() -> Result<()> {
         std::io::stdout(),
         crossterm::cursor::SetCursorStyle::BlinkingBar
     )?;
-    let github = Github::new("https://api.github.com".to_string(), get_auth_token()?);
+    let github = Github {
+        host: "https://api.github.com".to_string(),
+        token: get_auth_token()?,
+    };
     let app_result = App::new(github, cli)?.run(&mut terminal).await;
     ratatui::restore();
     app_result
@@ -380,7 +386,10 @@ mod tests {
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_input() {
-        let github = Github::new("".to_string(), "".to_string());
+        let github = Github {
+            host: "".to_string(),
+            token: "".to_string(),
+        };
         let mut app = App::new(github, Cli::default()).unwrap();
 
         assert_eq!(app.pattern, "");
@@ -410,7 +419,10 @@ mod tests {
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_delete_word() {
-        let github = Github::new("".to_string(), "".to_string());
+        let github = Github {
+            host: "".to_string(),
+            token: "".to_string(),
+        };
         let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");
@@ -441,7 +453,10 @@ mod tests {
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_cursor_movement() {
-        let github = Github::new("".to_string(), "".to_string());
+        let github = Github {
+            host: "".to_string(),
+            token: "".to_string(),
+        };
         let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");
@@ -475,7 +490,10 @@ mod tests {
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_cursor_input() {
-        let github = Github::new("".to_string(), "".to_string());
+        let github = Github {
+            host: "".to_string(),
+            token: "".to_string(),
+        };
         let mut app = App::new(github, Cli::default()).unwrap();
 
         input(&mut app, "abc def ghi");

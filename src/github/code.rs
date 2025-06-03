@@ -1,16 +1,11 @@
 use std::sync::Arc;
 
+use super::Github;
 use anyhow::{Context, Result};
 use base64::prelude::*;
 use serde::Deserialize;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing;
-
-#[derive(Clone)]
-pub struct Github {
-    host: String,
-    token: String,
-}
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchRepository {
@@ -169,26 +164,19 @@ async fn item_content_task(
     }
 }
 
-impl Github {
-    pub fn new(host: String, token: String) -> Self {
-        Self { host, token }
-    }
-
-    pub fn search_code(
-        &self,
-        term: &str,
-        max_pages: usize,
-        callback: Arc<(dyn Fn(SearchItem) + Sync + Send)>,
-    ) {
-        tracing::debug!("starting code search: {term}");
-        let github = self.clone();
-        let term = term.to_string();
-        tokio::spawn(async move {
-            search_code_task(github, term, max_pages, callback)
-                .await
-                .unwrap()
-        });
-    }
+pub fn search_code(
+    github: Github,
+    term: &str,
+    max_pages: usize,
+    callback: Arc<(dyn Fn(SearchItem) + Sync + Send)>,
+) {
+    tracing::debug!("starting code search: {term}");
+    let term = term.to_string();
+    tokio::spawn(async move {
+        search_code_task(github, term, max_pages, callback)
+            .await
+            .unwrap()
+    });
 }
 
 pub struct ContentClient {
@@ -243,13 +231,14 @@ mod tests {
                 });
         }
 
-        let github = Github::new(
-            format!("http://localhost:{}", server.port()),
-            "token".to_string(),
-        );
+        let github = Github {
+            host: format!("http://localhost:{}", server.port()),
+            token: "token".to_string(),
+        };
 
         let (tx, mut rx) = mpsc::channel(8);
-        github.search_code(
+        search_code(
+            github,
             "foo",
             4,
             Arc::new(move |res| {
@@ -298,7 +287,10 @@ mod tests {
         }
 
         let host = format!("http://localhost:{}", server.port());
-        let github = Github::new(host.clone(), "token".to_string());
+        let github = Github {
+            host: host.clone(),
+            token: "token".to_string(),
+        };
 
         let mut content_client = ContentClient::new(github);
 

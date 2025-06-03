@@ -12,7 +12,7 @@ use syntect::{
     parsing::SyntaxSet,
 };
 
-use crate::github::{SearchItem, TextMatch};
+use crate::github::code::{SearchItem, TextMatch};
 
 const ANSI_THEME: &[u8] = include_bytes!("ansi.tmTheme");
 
