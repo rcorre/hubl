@@ -1,6 +1,6 @@
 query {
   repository(owner:"octocat", name:"Hello-World") {
-    issues(first:2, states:CLOSED) {
+    issues(first:2) {
       edges {
         node {
           number

@@ -4,26 +4,26 @@
       "nodes": [
         {
           "__typename": "PullRequest",
-          "number": 4005,
-          "title": "new one",
-          "url": "https://github.com/octocat/Hello-World/pull/4005",
-          "body": "",
+          "number": 4064,
+          "title": "Update README",
+          "url": "https://github.com/octocat/Hello-World/pull/4064",
+          "body": "Hi! I’m Momina Iqbal, a web development intern passionate about learning and building modern, responsive websites.\r\nI’m currently exploring HTML, CSS, Git, and GitHub, and working toward becoming a Full Stack Developer.",
           "author": {
-            "login": "AD9818"
+            "login": "mominaiqbal-dev"
           }
         },
         {
-          "__typename": "Issue",
-          "number": 4004,
-          "title": "MCP Server Test",
-          "url": "https://github.com/octocat/Hello-World/issues/4004",
-          "body": "This is a test issue created via the GitHub MCP server",
+          "__typename": "PullRequest",
+          "number": 4063,
+          "title": "Added index.html and index.css",
+          "url": "https://github.com/octocat/Hello-World/pull/4063",
+          "body": "Assignment Task",
           "author": {
-            "login": "wujisanren"
+            "login": "mominaiqbal-dev"
           }
         }
       ],
-      "issueCount": 3410,
+      "issueCount": 3456,
       "pageInfo": {
         "endCursor": "Y3Vyc29yOjI=",
         "startCursor": "Y3Vyc29yOjE=",
@@ -35,9 +35,9 @@
       "cost": 1,
       "limit": 5000,
       "nodeCount": 2,
-      "remaining": 4989,
-      "resetAt": "2025-06-01T17:45:18Z",
-      "used": 11
+      "remaining": 4994,
+      "resetAt": "2025-06-20T13:34:25Z",
+      "used": 6
     }
   }
 }

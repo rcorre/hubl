@@ -1,5 +1,5 @@
  {
   "query": "repo:octocat/Hello-World",
   "pageSize": 2,
-  "after": "Y3Vyc29yOjI="
+  "after": ""
 }

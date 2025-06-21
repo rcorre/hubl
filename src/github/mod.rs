@@ -1,4 +1,5 @@
 pub mod code;
+pub mod issues;
 
 #[derive(Clone)]
 pub struct Github {

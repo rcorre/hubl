@@ -4,30 +4,30 @@
       "nodes": [
         {
           "__typename": "PullRequest",
-          "number": 4003,
-          "title": "addedAdded a practice line in README",
-          "url": "https://github.com/octocat/Hello-World/pull/4003",
-          "body": "added",
+          "number": 4062,
+          "title": "Corrige error en validación de login",
+          "url": "https://github.com/octocat/Hello-World/pull/4062",
+          "body": "Se realiza una prueba para la validación del error presentado durante el login.",
           "author": {
-            "login": "Kirraann"
+            "login": "ricardocasta"
           }
         },
         {
           "__typename": "PullRequest",
-          "number": 4002,
-          "title": "Add healthcheck script",
-          "url": "https://github.com/octocat/Hello-World/pull/4002",
-          "body": "- Added a healthcheck.sh script that prints a basic health message\r\n- Made the script executable\r\n- Updated .gitignore to exclude log files and temp directory",
+          "number": 4061,
+          "title": "Fixes #1: Add simple greeting function",
+          "url": "https://github.com/octocat/Hello-World/pull/4061",
+          "body": "This PR addresses issue #1 by adding a greetWorld() function that returns 'Hello, World!' to make the repository more welcoming to new developers.\n\n## Changes Made:\n- Added hello.js file with greetWorld() function\n- Function returns the string 'Hello, World!' as requested\n- Included JSDoc documentation for clarity\n- Added module export functionality\n- Included example usage when run directly\n\n## Testing:\nThe function can be tested by running:\n```bash\nnode hello.js\n```\n\nThis implementation makes the repository more accessible and welcoming to new developers learning to code.",
           "author": {
-            "login": "osanpet"
+            "login": "flazouh"
           }
         }
       ],
-      "issueCount": 3410,
+      "issueCount": 3456,
       "pageInfo": {
         "endCursor": "Y3Vyc29yOjQ=",
         "startCursor": "Y3Vyc29yOjM=",
-        "hasNextPage": false,
+        "hasNextPage": true,
         "hasPreviousPage": true
       }
     },
@@ -35,9 +35,9 @@
       "cost": 1,
       "limit": 5000,
       "nodeCount": 2,
-      "remaining": 4985,
-      "resetAt": "2025-06-01T17:45:18Z",
-      "used": 15
+      "remaining": 4995,
+      "resetAt": "2025-06-20T13:34:25Z",
+      "used": 5
     }
   }
 }
