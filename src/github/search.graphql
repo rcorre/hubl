@@ -1,5 +1,5 @@
-query($query:String!, $pageSize:Int!, $after:String) {
-  search(query: $query, type: ISSUE, first: $pageSize, after: $after) {
+query($query:String!, $count:Int!, $after:String) {
+  search(query: $query, type: ISSUE, first: $count, after: $after) {
     nodes {
       ... on Issue {
         __typename

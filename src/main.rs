@@ -1,6 +1,5 @@
 use anyhow::Result;
 use clap::Parser as _;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use hubl::github::Github;
 use hubl::Cli;
 use tracing_error::ErrorLayer;
@@ -47,7 +46,11 @@ async fn main() -> Result<()> {
     };
     let result = match cli.command {
         hubl::Command::Code(cmd) => hubl::code::App::new(github, cmd)?.run(&mut terminal).await,
-        // hubl::Command::Issues(cmd) => Ok(()),
+        hubl::Command::Issues(cmd) => {
+            hubl::issues::App::new(github, cmd)?
+                .run(&mut terminal)
+                .await
+        }
     };
     ratatui::restore();
     result

@@ -2,6 +2,7 @@ use clap::{Args, Parser, Subcommand};
 
 pub mod code;
 pub mod github;
+pub mod issues;
 pub mod preview;
 
 #[derive(Parser)]
@@ -16,6 +17,9 @@ pub struct Cli {
 pub enum Command {
     /// Search code.
     Code(QueryArgs),
+
+    /// Search issues.
+    Issues(QueryArgs),
 }
 
 #[derive(Args, Default)]

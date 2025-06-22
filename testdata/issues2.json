@@ -27,7 +27,7 @@
       "pageInfo": {
         "endCursor": "Y3Vyc29yOjQ=",
         "startCursor": "Y3Vyc29yOjM=",
-        "hasNextPage": true,
+        "hasNextPage": false,
         "hasPreviousPage": true
       }
     },
