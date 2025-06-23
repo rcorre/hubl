@@ -3,7 +3,7 @@ use crate::{
     github::code,
     github::code::{ContentClient, SearchItem},
     github::Github,
-    preview::PreviewCache,
+    tui::preview::PreviewCache,
 };
 use anyhow::{Context, Result};
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -13,14 +13,16 @@ use nucleo::{
     Nucleo,
 };
 use ratatui::{
-    layout::{Constraint, Direction, Layout, Position},
+    layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
-    widgets::{Block, Borders, Paragraph, Row, Table, TableState},
+    widgets::{Block, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc::{self, Receiver};
+
+use super::input::LineInput;
 
 pub struct App {
     event_stream: EventStream,
@@ -30,8 +32,7 @@ pub struct App {
     preview_cache: PreviewCache,
     nucleo: Nucleo<SearchItem>,
     nucleo_rx: Receiver<()>,
-    pattern: String,
-    cursor_pos: usize,
+    line_input: LineInput,
 
     // When an item is selected, this is set to now+<small_timeout>.
     // If this elapses before selecting a new item, we will request a preview.
@@ -71,8 +72,7 @@ impl App {
             preview_cache: PreviewCache::new(),
             nucleo,
             nucleo_rx,
-            pattern: String::new(),
-            cursor_pos: 0,
+            line_input: LineInput::default(),
             preview_deadline: None,
         })
     }
@@ -132,13 +132,7 @@ impl App {
             .margin(1) // to account for the border we draw around everything
             .areas(search_area);
 
-        let input =
-            Paragraph::new(self.pattern.as_str()).block(Block::new().borders(Borders::BOTTOM));
-        frame.render_widget(input, input_area);
-        frame.set_cursor_position(Position::new(
-            input_area.x + self.cursor_pos as u16,
-            input_area.y,
-        ));
+        self.line_input.draw(frame, input_area);
 
         let snap = self.nucleo.snapshot();
         if snap.matched_item_count() > 0 {
@@ -228,6 +222,19 @@ impl App {
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
+        match self.line_input.handle_key_event(key_event) {
+            super::input::InputResult::Unhandled => {}
+            super::input::InputResult::Handled => return,
+            super::input::InputResult::PatternChanged => {
+                self.nucleo.pattern.reparse(
+                    0,
+                    self.line_input.pattern(),
+                    CaseMatching::Smart,
+                    Normalization::Smart,
+                    true,
+                );
+            }
+        }
         match key_event.code {
             KeyCode::Esc => {
                 tracing::debug!("Exit requested");
@@ -251,213 +258,7 @@ impl App {
                 self.start_preview_timer();
                 self.table_state.select_next()
             }
-            KeyCode::Left => {
-                tracing::debug!("Moving cursor left");
-                self.start_preview_timer();
-                self.cursor_pos = self.cursor_pos.saturating_sub(1)
-            }
-            KeyCode::Right => {
-                tracing::debug!("Moving cursor right");
-                self.cursor_pos = (self.cursor_pos + 1).min(self.pattern.len())
-            }
-            KeyCode::Char('w') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                tracing::debug!(
-                    "Deleting word from '{}' at {}",
-                    self.pattern,
-                    self.cursor_pos
-                );
-                let (s, rest) = self.pattern.split_at(self.cursor_pos);
-                if let Some(idx) = s.trim_end().rfind(char::is_whitespace) {
-                    self.cursor_pos = idx + 1;
-                    self.pattern = s[0..=idx].to_owned() + rest;
-                    tracing::debug!("Truncated pattern to {}", self.pattern);
-                } else {
-                    self.pattern = rest.into();
-                    self.cursor_pos = 0;
-                    tracing::debug!("Cleared pattern");
-                }
-                self.nucleo.pattern.reparse(
-                    0,
-                    &self.pattern,
-                    CaseMatching::Smart,
-                    Normalization::Smart,
-                    false,
-                );
-            }
-            KeyCode::Backspace => {
-                if self.cursor_pos == 0 {
-                    return;
-                };
-                self.cursor_pos -= 1;
-                let c = self.pattern.remove(self.cursor_pos);
-                tracing::debug!("Removed '{c}' from pattern, new pattern: {}", self.pattern);
-                self.nucleo.pattern.reparse(
-                    0,
-                    &self.pattern,
-                    CaseMatching::Smart,
-                    Normalization::Smart,
-                    false,
-                );
-            }
-            KeyCode::Char(c) => {
-                self.pattern.insert(self.cursor_pos, c);
-                self.cursor_pos += 1;
-                tracing::debug!("Updated filter pattern: {}", self.pattern);
-                self.nucleo.pattern.reparse(
-                    0,
-                    &self.pattern,
-                    CaseMatching::Smart,
-                    Normalization::Smart,
-                    true,
-                );
-            }
             _ => {}
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn input(app: &mut App, s: &str) {
-        for c in s.chars() {
-            app.handle_key_event(KeyCode::Char(c).into());
-        }
-    }
-
-    #[tracing_test::traced_test]
-    #[tokio::test]
-    async fn test_input() {
-        let github = Github {
-            host: "".to_string(),
-            token: "".to_string(),
-        };
-        let mut app = App::new(github, QueryArgs::default()).unwrap();
-
-        assert_eq!(app.pattern, "");
-        assert_eq!(app.cursor_pos, 0);
-
-        input(&mut app, "abc");
-        assert_eq!(app.pattern, "abc");
-        assert_eq!(app.cursor_pos, 3);
-
-        app.handle_key_event(KeyCode::Backspace.into());
-        assert_eq!(app.pattern, "ab");
-        assert_eq!(app.cursor_pos, 2);
-
-        app.handle_key_event(KeyCode::Backspace.into());
-        assert_eq!(app.pattern, "a");
-        assert_eq!(app.cursor_pos, 1);
-
-        app.handle_key_event(KeyCode::Backspace.into());
-        assert_eq!(app.pattern, "");
-        assert_eq!(app.cursor_pos, 0);
-
-        app.handle_key_event(KeyCode::Backspace.into());
-        assert_eq!(app.pattern, "");
-        assert_eq!(app.cursor_pos, 0);
-    }
-
-    #[tracing_test::traced_test]
-    #[tokio::test]
-    async fn test_delete_word() {
-        let github = Github {
-            host: "".to_string(),
-            token: "".to_string(),
-        };
-        let mut app = App::new(github, QueryArgs::default()).unwrap();
-
-        input(&mut app, "abc def ghi");
-        assert_eq!(app.pattern, "abc def ghi");
-        assert_eq!(app.cursor_pos, 11);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, "abc def ");
-        assert_eq!(app.cursor_pos, 8);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, "abc ");
-        assert_eq!(app.cursor_pos, 4);
-
-        input(&mut app, "    ");
-        assert_eq!(app.pattern, "abc     ");
-        assert_eq!(app.cursor_pos, 8);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, "");
-        assert_eq!(app.cursor_pos, 0);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, "");
-        assert_eq!(app.cursor_pos, 0);
-    }
-
-    #[tracing_test::traced_test]
-    #[tokio::test]
-    async fn test_cursor_movement() {
-        let github = Github {
-            host: "".to_string(),
-            token: "".to_string(),
-        };
-        let mut app = App::new(github, QueryArgs::default()).unwrap();
-
-        input(&mut app, "abc def ghi");
-        assert_eq!(app.pattern, "abc def ghi");
-        assert_eq!(app.cursor_pos, 11);
-
-        app.handle_key_event(KeyCode::Left.into());
-        assert_eq!(app.cursor_pos, 10);
-
-        for _ in 0..4 {
-            app.handle_key_event(KeyCode::Left.into());
-        }
-        assert_eq!(app.cursor_pos, 6);
-
-        for _ in 0..8 {
-            app.handle_key_event(KeyCode::Left.into());
-        }
-        assert_eq!(app.cursor_pos, 0);
-
-        for _ in 0..8 {
-            app.handle_key_event(KeyCode::Right.into());
-        }
-        assert_eq!(app.cursor_pos, 8);
-
-        for _ in 0..8 {
-            app.handle_key_event(KeyCode::Right.into());
-        }
-        assert_eq!(app.cursor_pos, 11);
-    }
-
-    #[tracing_test::traced_test]
-    #[tokio::test]
-    async fn test_cursor_input() {
-        let github = Github {
-            host: "".to_string(),
-            token: "".to_string(),
-        };
-        let mut app = App::new(github, QueryArgs::default()).unwrap();
-
-        input(&mut app, "abc def ghi");
-        assert_eq!(app.pattern, "abc def ghi");
-        assert_eq!(app.cursor_pos, 11);
-
-        for _ in 0..4 {
-            app.handle_key_event(KeyCode::Left.into());
-        }
-        assert_eq!(app.cursor_pos, 7);
-
-        input(&mut app, "bar");
-        assert_eq!(app.pattern, "abc defbar ghi");
-        assert_eq!(app.cursor_pos, 10);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, "abc  ghi");
-        assert_eq!(app.cursor_pos, 4);
-
-        app.handle_key_event(KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
-        assert_eq!(app.pattern, " ghi");
-        assert_eq!(app.cursor_pos, 0);
     }
 }

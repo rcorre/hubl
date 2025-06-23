@@ -1,9 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 
-pub mod code;
 pub mod github;
-pub mod issues;
-pub mod preview;
+pub mod tui;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]

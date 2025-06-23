@@ -45,9 +45,9 @@ async fn main() -> Result<()> {
         token: get_auth_token()?,
     };
     let result = match cli.command {
-        hubl::Command::Code(cmd) => hubl::code::App::new(github, cmd)?.run(&mut terminal).await,
+        hubl::Command::Code(cmd) => hubl::tui::code::App::new(github, cmd)?.run(&mut terminal).await,
         hubl::Command::Issues(cmd) => {
-            hubl::issues::App::new(github, cmd)?
+            hubl::tui::issues::App::new(github, cmd)?
                 .run(&mut terminal)
                 .await
         }
