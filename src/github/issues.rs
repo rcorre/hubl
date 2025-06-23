@@ -105,7 +105,7 @@ async fn search_issues_task(
     tracing::debug!("starting issue search task: {term}");
     let client = reqwest::Client::new();
     let url = github.host + "/graphql";
-    let after = "".to_string();
+    let mut after = "".to_string();
 
     for _ in 1..=max_pages {
         let req = client
@@ -139,6 +139,7 @@ async fn search_issues_task(
             return Ok(());
         }
 
+        after = results.data.search.page_info.end_cursor;
         await_rate_limit(&results.data.rate_limit).await?;
     }
     Ok(())
@@ -162,30 +163,35 @@ pub fn search_issues(
 mod tests {
     use super::*;
 
-    use http_test_server::http::{Method, Status};
-    use http_test_server::TestServer;
-    use std::sync::{Arc, Mutex};
+    use mockito::Server;
     use tokio::sync::mpsc;
 
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_search_issues() {
-        let server = TestServer::new().unwrap();
+        let mut server = Server::new_async().await;
 
-        let count = Arc::new(Mutex::new(0));
-        let resource = server.create_resource("/graphql");
-        let count_clone = count.clone();
-        resource
-            .status(Status::OK)
-            .method(Method::POST)
-            .body_fn(move |_| {
-                let mut count = count_clone.lock().unwrap();
-                *count += 1;
-                std::fs::read_to_string(format!("testdata/issues{count}.json")).unwrap()
-            });
+        
+        let _mock1 = server
+            .mock("POST", "/graphql")
+            .match_body(mockito::Matcher::PartialJsonString(r#"{"variables":{"after":""}}"#.to_string()))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(&std::fs::read_to_string("testdata/issues1.json").unwrap())
+            .create_async()
+            .await;
+            
+        let _mock2 = server
+            .mock("POST", "/graphql")
+            .match_body(mockito::Matcher::PartialJsonString(r#"{"variables":{"after":"Y3Vyc29yOjI="}}"#.to_string()))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(&std::fs::read_to_string("testdata/issues2.json").unwrap())
+            .create_async()
+            .await;
 
         let github = Github {
-            host: format!("http://localhost:{}", server.port()),
+            host: server.url(),
             token: "token".to_string(),
         };
 

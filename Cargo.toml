@@ -22,5 +22,5 @@ syntect = "5.2.0"
 chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
 
 [dev-dependencies]
-http-test-server = "2.1.1"
+mockito = "1.5.0"
 tracing-test = "0.2.5"

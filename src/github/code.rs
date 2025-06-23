@@ -209,30 +209,54 @@ impl ContentClient {
 mod tests {
     use super::*;
 
-    use http_test_server::http::{Method, Status};
-    use http_test_server::TestServer;
+    use mockito::Server;
 
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_search_code() {
-        let server = TestServer::new().unwrap();
+        let mut server = Server::new_async().await;
 
-        for i in 1..4 {
-            let resource = server.create_resource("/search/code");
-            resource
-                .status(Status::OK)
-                .method(Method::GET)
-                .header("x-ratelimit-remaining", "10")
-                .query("page", &i.to_string())
-                .query("per_page", "100")
-                .query("q", "foo")
-                .body_fn(move |_| {
-                    std::fs::read_to_string(format!("testdata/search{i}.json")).unwrap()
-                });
-        }
+        let _mock1 = server
+            .mock("GET", "/search/code")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("page".into(), "1".into()),
+                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
+                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
+            ]))
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&std::fs::read_to_string("testdata/search1.json").unwrap())
+            .create_async()
+            .await;
+
+        let _mock2 = server
+            .mock("GET", "/search/code")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("page".into(), "2".into()),
+                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
+                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
+            ]))
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&std::fs::read_to_string("testdata/search2.json").unwrap())
+            .create_async()
+            .await;
+
+        let _mock3 = server
+            .mock("GET", "/search/code")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("page".into(), "3".into()),
+                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
+                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
+            ]))
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&std::fs::read_to_string("testdata/search3.json").unwrap())
+            .create_async()
+            .await;
 
         let github = Github {
-            host: format!("http://localhost:{}", server.port()),
+            host: server.url(),
             token: "token".to_string(),
         };
 
@@ -270,23 +294,33 @@ mod tests {
     #[tracing_test::traced_test]
     #[tokio::test]
     async fn test_get_content() {
-        let server = TestServer::new().unwrap();
+        let mut server = Server::new_async().await;
 
-        for i in 1..4 {
-            let resource = server.create_resource(&format!("/content/foo{i}"));
-            resource
-                .status(Status::OK)
-                .method(Method::GET)
-                .header("x-ratelimit-remaining", "10")
-                .body_fn(move |_| {
-                    format!(
-                        r#"{{"content": "{}"}}"#,
-                        BASE64_STANDARD.encode(format!("body{i}"))
-                    )
-                });
-        }
+        let _mock1 = server
+            .mock("GET", "/content/foo1")
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body1")))
+            .create_async()
+            .await;
 
-        let host = format!("http://localhost:{}", server.port());
+        let _mock2 = server
+            .mock("GET", "/content/foo2")
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body2")))
+            .create_async()
+            .await;
+
+        let _mock3 = server
+            .mock("GET", "/content/foo3")
+            .with_status(200)
+            .with_header("x-ratelimit-remaining", "10")
+            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body3")))
+            .create_async()
+            .await;
+
+        let host = server.url();
         let github = Github {
             host: host.clone(),
             token: "token".to_string(),
