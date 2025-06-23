@@ -216,44 +216,24 @@ mod tests {
     async fn test_search_code() {
         let mut server = Server::new_async().await;
 
-        let _mock1 = server
-            .mock("GET", "/search/code")
-            .match_query(mockito::Matcher::AllOf(vec![
-                mockito::Matcher::UrlEncoded("page".into(), "1".into()),
-                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
-                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
-            ]))
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&std::fs::read_to_string("testdata/search1.json").unwrap())
-            .create_async()
-            .await;
-
-        let _mock2 = server
-            .mock("GET", "/search/code")
-            .match_query(mockito::Matcher::AllOf(vec![
-                mockito::Matcher::UrlEncoded("page".into(), "2".into()),
-                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
-                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
-            ]))
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&std::fs::read_to_string("testdata/search2.json").unwrap())
-            .create_async()
-            .await;
-
-        let _mock3 = server
-            .mock("GET", "/search/code")
-            .match_query(mockito::Matcher::AllOf(vec![
-                mockito::Matcher::UrlEncoded("page".into(), "3".into()),
-                mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
-                mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
-            ]))
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&std::fs::read_to_string("testdata/search3.json").unwrap())
-            .create_async()
-            .await;
+        let mut mocks = Vec::new();
+        for page in 1..=3 {
+            let mock = server
+                .mock("GET", "/search/code")
+                .match_query(mockito::Matcher::AllOf(vec![
+                    mockito::Matcher::UrlEncoded("page".into(), page.to_string()),
+                    mockito::Matcher::UrlEncoded("per_page".into(), "100".into()),
+                    mockito::Matcher::UrlEncoded("q".into(), "foo".into()),
+                ]))
+                .with_status(200)
+                .with_header("x-ratelimit-remaining", "10")
+                .with_body(
+                    &std::fs::read_to_string(format!("testdata/search{}.json", page)).unwrap(),
+                )
+                .create_async()
+                .await;
+            mocks.push(mock);
+        }
 
         let github = Github {
             host: server.url(),
@@ -289,6 +269,11 @@ mod tests {
 
         // all pages done, should close
         assert!(rx.recv().await.is_none());
+
+        // Assert all mocks were called
+        for mock in mocks {
+            mock.assert_async().await;
+        }
     }
 
     #[tracing_test::traced_test]
@@ -296,29 +281,20 @@ mod tests {
     async fn test_get_content() {
         let mut server = Server::new_async().await;
 
-        let _mock1 = server
-            .mock("GET", "/content/foo1")
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body1")))
-            .create_async()
-            .await;
-
-        let _mock2 = server
-            .mock("GET", "/content/foo2")
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body2")))
-            .create_async()
-            .await;
-
-        let _mock3 = server
-            .mock("GET", "/content/foo3")
-            .with_status(200)
-            .with_header("x-ratelimit-remaining", "10")
-            .with_body(&format!(r#"{{"content": "{}"}}"#, BASE64_STANDARD.encode("body3")))
-            .create_async()
-            .await;
+        let mut mocks = Vec::new();
+        for i in 1..=3 {
+            let mock = server
+                .mock("GET", format!("/content/foo{}", i).as_str())
+                .with_status(200)
+                .with_header("x-ratelimit-remaining", "10")
+                .with_body(&format!(
+                    r#"{{"content": "{}"}}"#,
+                    BASE64_STANDARD.encode(format!("body{}", i))
+                ))
+                .create_async()
+                .await;
+            mocks.push(mock);
+        }
 
         let host = server.url();
         let github = Github {
@@ -351,5 +327,10 @@ mod tests {
         content_client.get_content(item.clone()).await.unwrap();
         let res = content_client.recv_content().await.unwrap();
         assert_eq!(res, (item, "body3".to_string()));
+
+        // Assert all mocks were called
+        for mock in mocks {
+            mock.assert_async().await;
+        }
     }
 }

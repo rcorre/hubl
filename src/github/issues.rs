@@ -171,24 +171,26 @@ mod tests {
     async fn test_search_issues() {
         let mut server = Server::new_async().await;
 
-        
-        let _mock1 = server
-            .mock("POST", "/graphql")
-            .match_body(mockito::Matcher::PartialJsonString(r#"{"variables":{"after":""}}"#.to_string()))
-            .with_status(200)
-            .with_header("content-type", "application/json")
-            .with_body(&std::fs::read_to_string("testdata/issues1.json").unwrap())
-            .create_async()
-            .await;
-            
-        let _mock2 = server
-            .mock("POST", "/graphql")
-            .match_body(mockito::Matcher::PartialJsonString(r#"{"variables":{"after":"Y3Vyc29yOjI="}}"#.to_string()))
-            .with_status(200)
-            .with_header("content-type", "application/json")
-            .with_body(&std::fs::read_to_string("testdata/issues2.json").unwrap())
-            .create_async()
-            .await;
+        let mock_configs = [
+            ("", "testdata/issues1.json"),
+            ("Y3Vyc29yOjI=", "testdata/issues2.json"),
+        ];
+
+        let mut mocks = Vec::new();
+        for (after, file) in mock_configs {
+            let mock = server
+                .mock("POST", "/graphql")
+                .match_body(mockito::Matcher::PartialJsonString(format!(
+                    r#"{{"variables":{{"after":"{}"}}}}"#,
+                    after
+                )))
+                .with_status(200)
+                .with_header("content-type", "application/json")
+                .with_body(&std::fs::read_to_string(file).unwrap())
+                .create_async()
+                .await;
+            mocks.push(mock);
+        }
 
         let github = Github {
             host: server.url(),
@@ -263,5 +265,10 @@ mod tests {
 
         // all pages done, should close
         assert!(rx.recv().await.is_none());
+
+        // Assert all mocks were called
+        for mock in mocks {
+            mock.assert_async().await;
+        }
     }
 }
