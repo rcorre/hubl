@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ratatui::text::{Line, Span, Text};
 use std::{
     collections::{HashMap, HashSet},
@@ -17,6 +17,39 @@ use crate::github::code::{SearchItem, TextMatch};
 const ANSI_THEME: &[u8] = include_bytes!("ansi.tmTheme");
 
 pub type Fragments = Vec<Text<'static>>;
+
+pub struct MarkdownHighlighter {
+    syntax: SyntaxSet,
+    theme: Theme,
+}
+
+impl Default for MarkdownHighlighter {
+    fn default() -> Self {
+        let mut theme_cursor = Cursor::new(ANSI_THEME);
+        Self {
+            syntax: SyntaxSet::load_defaults_newlines(),
+            theme: ThemeSet::load_from_reader(&mut theme_cursor).expect("Loading theme"),
+        }
+    }
+}
+
+impl MarkdownHighlighter {
+    pub fn highlight(&self, text: &str) -> Result<Text> {
+        let syntax = self
+            .syntax
+            .find_syntax_by_extension("md")
+            .context("markdown syntax not found")?;
+        let mut h = HighlightLines::new(syntax, &self.theme);
+
+        let mut highlighted_lines = Vec::new();
+        for line in text.lines() {
+            let highlights = h.highlight_line(line, &self.syntax)?;
+            highlighted_lines.push(to_line_widget(highlights));
+        }
+
+        Ok(Text::from(highlighted_lines))
+    }
+}
 
 pub struct PreviewCache {
     cache: HashMap<String, Fragments>, // url->content

@@ -1,4 +1,5 @@
 use super::input::LineInput;
+use super::preview::MarkdownHighlighter;
 use crate::github::issues::{self, Issue};
 use crate::github::Github;
 use crate::QueryArgs;
@@ -25,6 +26,7 @@ pub struct App {
     nucleo: Nucleo<Issue>,
     nucleo_rx: Receiver<()>,
     line_input: LineInput,
+    highlighter: MarkdownHighlighter,
 }
 
 impl App {
@@ -58,20 +60,21 @@ impl App {
             nucleo,
             nucleo_rx,
             line_input: LineInput::default(),
+            highlighter: MarkdownHighlighter::default(),
         })
     }
 
     /// runs the application's main loop until the user quits
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
-            terminal.draw(|frame| self.draw(frame))?;
+            terminal.draw(|frame| self.draw(frame).unwrap())?;
             self.nucleo.tick(10);
             self.handle_events().await?;
         }
         Ok(())
     }
 
-    fn draw(&mut self, frame: &mut Frame) {
+    fn draw(&mut self, frame: &mut Frame) -> Result<()> {
         tracing::debug!("Drawing");
         let [search_area, preview_area] = Layout::default()
             .direction(Direction::Horizontal)
@@ -114,11 +117,13 @@ impl App {
         };
 
         let Some(item) = snap.get_matched_item(idx as u32) else {
-            return;
+            return Ok(());
         };
 
-        let preview = Paragraph::new(item.data.body.as_str()).block(Block::bordered());
+        let preview = Paragraph::new(self.highlighter.highlight(item.data.body.as_str())?)
+            .block(Block::bordered());
         frame.render_widget(preview, preview_area);
+        Ok(())
     }
 
     /// updates the application's state based on user input
