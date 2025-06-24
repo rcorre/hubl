@@ -18,9 +18,7 @@
           "title": "Fixes #1: Add simple greeting function",
           "url": "https://github.com/octocat/Hello-World/pull/4061",
           "body": "This PR addresses issue #1 by adding a greetWorld() function that returns 'Hello, World!' to make the repository more welcoming to new developers.\n\n## Changes Made:\n- Added hello.js file with greetWorld() function\n- Function returns the string 'Hello, World!' as requested\n- Included JSDoc documentation for clarity\n- Added module export functionality\n- Included example usage when run directly\n\n## Testing:\nThe function can be tested by running:\n```bash\nnode hello.js\n```\n\nThis implementation makes the repository more accessible and welcoming to new developers learning to code.",
-          "author": {
-            "login": "flazouh"
-          }
+          "author": null
         }
       ],
       "issueCount": 3456,

@@ -55,7 +55,7 @@ impl App {
         let injector = nucleo.injector();
         code::search_code(
             github.clone(),
-            &cli.query,
+            &cli.to_query(),
             cli.pages,
             Arc::new(move |result| {
                 injector.push(result, |item, columns| {

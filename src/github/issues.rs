@@ -77,7 +77,7 @@ pub struct Issue {
     pub title: String,
     pub url: String,
     pub body: String,
-    pub author: User,
+    pub author: Option<User>,
 }
 
 async fn await_rate_limit(r: &RateLimit) -> Result<()> {
@@ -215,9 +215,9 @@ mod tests {
                 title: "Update README".into(),
                 url: "https://github.com/octocat/Hello-World/pull/4064".into(),
                 body: "Hi! I’m Momina Iqbal, a web development intern passionate about learning and building modern, responsive websites.\r\nI’m currently exploring HTML, CSS, Git, and GitHub, and working toward becoming a Full Stack Developer.".into(),
-                author: User{
+                author: Some(User{
                 login: "mominaiqbal-dev".into()
-                }
+                })
             },
         );
 
@@ -229,9 +229,9 @@ mod tests {
                 title: "Added index.html and index.css".into(),
                 url: "https://github.com/octocat/Hello-World/pull/4063".into(),
                 body: "Assignment Task".into(),
-                author: User {
+                author: Some(User {
                     login: "mominaiqbal-dev".into()
-                }
+                })
             },
         );
 
@@ -243,9 +243,9 @@ mod tests {
                 title: "Corrige error en validación de login".into(),
                 url: "https://github.com/octocat/Hello-World/pull/4062".into(),
                 body: "Se realiza una prueba para la validación del error presentado durante el login.".into(),
-                author: User {
+                author: Some(User {
                     login: "ricardocasta".into()
-                }
+                })
             },
         );
 
@@ -257,9 +257,7 @@ mod tests {
                 title: "Fixes #1: Add simple greeting function".into(),
                 url: "https://github.com/octocat/Hello-World/pull/4061".into(),
                 body: "This PR addresses issue #1 by adding a greetWorld() function that returns 'Hello, World!' to make the repository more welcoming to new developers.\n\n## Changes Made:\n- Added hello.js file with greetWorld() function\n- Function returns the string 'Hello, World!' as requested\n- Included JSDoc documentation for clarity\n- Added module export functionality\n- Included example usage when run directly\n\n## Testing:\nThe function can be tested by running:\n```bash\nnode hello.js\n```\n\nThis implementation makes the repository more accessible and welcoming to new developers learning to code.".into(),
-                author: User {
-                    login: "flazouh".into()
-                }
+                author: None,
             },
         );
 

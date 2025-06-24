@@ -61,7 +61,7 @@ impl LineInput {
                 tracing::debug!("Removed '{c}' from pattern, new pattern: {}", self.pattern);
                 InputResult::PatternChanged
             }
-            KeyCode::Char(c) => {
+            KeyCode::Char(c) if (key_event.modifiers & !KeyModifiers::SHIFT).is_empty() => {
                 self.pattern.insert(self.cursor_pos, c);
                 self.cursor_pos += 1;
                 tracing::debug!("Updated filter pattern: {}", self.pattern);
@@ -122,6 +122,10 @@ mod tests {
         assert_eq!(app.cursor_pos, 0);
 
         app.handle_key_event(KeyCode::Backspace.into());
+        assert_eq!(app.pattern, "");
+        assert_eq!(app.cursor_pos, 0);
+
+        app.handle_key_event(KeyEvent::new(KeyCode::Char('a'), KeyModifiers::CONTROL));
         assert_eq!(app.pattern, "");
         assert_eq!(app.cursor_pos, 0);
     }
