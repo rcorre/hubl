@@ -1,31 +1,57 @@
 {
   "data": {
     "search": {
-      "nodes": [
+      "edges": [
         {
-          "__typename": "PullRequest",
-          "number": 4062,
-          "title": "Corrige error en validación de login",
-          "url": "https://github.com/octocat/Hello-World/pull/4062",
-          "body": "Se realiza una prueba para la validación del error presentado durante el login.",
-          "author": {
-            "login": "ricardocasta"
-          }
+          "node": {
+            "__typename": "Issue",
+            "number": 2356,
+            "title": "Terraform AWS CODE",
+            "url": "https://github.com/octocat/Hello-World/issues/2356",
+            "body": "terraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 4.0\"\n    }\n  }\n}\n\n# Configure the AWS Provider\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\n# Create a VPC\nresource \"aws_vpc\" \"example\" {\n  cidr_block = \"10.0.0.0/16\"\n} provider \"aws\" {\n  shared_config_files      = [\"/Users/tf_user/.aws/conf\"]\n  shared_credentials_files = [\"/Users/tf_user/.aws/creds\"]\n  profile                  = \"customprofile\"\n} provider \"aws\" {\n  assume_role {\n    role_arn                = \"arn:aws:iam::123456789012:role/ROLE_NAME\"\n    session_name            = \"SESSION_NAME\"\n    web_identity_token_file = \"/Users/tf_user/secrets/web-identity-token\"\n  }\n} provider \"aws\" {\n  profile = \"customprofile\"\n} export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\n$ export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\n$ export AWS_DEFAULT_REGION=us-west-2 $Env:<variable-name> = \"<new-value>\"Get-Member : You must specify an object for the Get-Member cmdlet.\nAt line:1 char:12\n+ $env:foo | Get-Member\n+            ~~~~~~~~~~\n    + CategoryInfo          : CloseError: (:) [Get-Member], InvalidOperationException\n    + FullyQualifiedErrorId : NoObjectInGetMember,Microsoft.PowerShell.Commands.GetMemberCommand $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'4 $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'",
+            "author": {
+              "login": "hitesh7353871909"
+            }
+          },
+          "textMatches": [
+            {
+              "property": "title",
+              "highlights": [
+                {
+                  "text": "CODE"
+                }
+              ]
+            }
+          ]
         },
         {
-          "__typename": "PullRequest",
-          "number": 4061,
-          "title": "Fixes #1: Add simple greeting function",
-          "url": "https://github.com/octocat/Hello-World/pull/4061",
-          "body": "This PR addresses issue #1 by adding a greetWorld() function that returns 'Hello, World!' to make the repository more welcoming to new developers.\n\n## Changes Made:\n- Added hello.js file with greetWorld() function\n- Function returns the string 'Hello, World!' as requested\n- Included JSDoc documentation for clarity\n- Added module export functionality\n- Included example usage when run directly\n\n## Testing:\nThe function can be tested by running:\n```bash\nnode hello.js\n```\n\nThis implementation makes the repository more accessible and welcoming to new developers learning to code.",
-          "author": null
+          "node": {
+            "__typename": "PullRequest",
+            "number": 2648,
+            "title": "changed a bit of code",
+            "url": "https://github.com/octocat/Hello-World/pull/2648",
+            "body": "i made changes",
+            "author": {
+              "login": "codeblue1230"
+            }
+          },
+          "textMatches": [
+            {
+              "property": "title",
+              "highlights": [
+                {
+                  "text": "code"
+                }
+              ]
+            }
+          ]
         }
       ],
-      "issueCount": 3456,
+      "issueCount": 79,
       "pageInfo": {
         "endCursor": "Y3Vyc29yOjQ=",
         "startCursor": "Y3Vyc29yOjM=",
-        "hasNextPage": false,
+        "hasNextPage": true,
         "hasPreviousPage": true
       }
     },
@@ -33,9 +59,9 @@
       "cost": 1,
       "limit": 5000,
       "nodeCount": 2,
-      "remaining": 4995,
-      "resetAt": "2025-06-20T13:34:25Z",
-      "used": 5
+      "remaining": 4992,
+      "resetAt": "2025-06-26T23:06:12Z",
+      "used": 8
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "query": "repo:octocat/Hello-World",
+  "query": "repo:octocat/Hello-World code",
   "count": 2,
-  "after": ""
+  "after": "Y3Vyc29yOjI="
 }

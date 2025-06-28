@@ -42,9 +42,27 @@ struct PageInfo {
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 struct IssueSearchBody {
-    nodes: Vec<Issue>,
+    edges: Vec<IssueEdge>,
     issue_count: u32,
     page_info: PageInfo,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+struct IssueEdge {
+    node: Issue,
+    text_matches: Vec<TextMatch>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+struct TextMatch {
+    property: String,
+    highlights: Vec<Highlight>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
+struct Highlight {
+    text: String,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
@@ -130,8 +148,8 @@ async fn search_issues_task(
         let results: IssueSearchResponse = resp.json().await?;
         tracing::trace!("parsed response: {results:#?}");
 
-        for item in results.data.search.nodes {
-            callback(item);
+        for edge in results.data.search.edges {
+            callback(edge.node);
         }
 
         if !results.data.search.page_info.has_next_page {
@@ -210,13 +228,13 @@ mod tests {
         assert_eq!(
             rx.recv().await.unwrap(),
             Issue {
-                typename: IssueKind::PullRequest,
-                number: 4064,
-                title: "Update README".into(),
-                url: "https://github.com/octocat/Hello-World/pull/4064".into(),
-                body: "Hi! I’m Momina Iqbal, a web development intern passionate about learning and building modern, responsive websites.\r\nI’m currently exploring HTML, CSS, Git, and GitHub, and working toward becoming a Full Stack Developer.".into(),
+                typename: IssueKind::Issue,
+                number: 3556,
+                title: "LICENSE-CODE".into(),
+                url: "https://github.com/octocat/Hello-World/issues/3556".into(),
+                body: "".into(),
                 author: Some(User{
-                login: "mominaiqbal-dev".into()
+                    login: "dikehtaw".into()
                 })
             },
         );
@@ -224,13 +242,13 @@ mod tests {
         assert_eq!(
             rx.recv().await.unwrap(),
             Issue {
-                typename: IssueKind::PullRequest,
-                number: 4063,
-                title: "Added index.html and index.css".into(),
-                url: "https://github.com/octocat/Hello-World/pull/4063".into(),
-                body: "Assignment Task".into(),
+                typename: IssueKind::Issue,
+                number: 3564,
+                title: "CODE OF. THE ICENSES".into(),
+                url: "https://github.com/octocat/Hello-World/issues/3564".into(),
+                body: "[interviews.docx](https://github.com/user-attachments/files/18794937/interviews.docx)".into(),
                 author: Some(User {
-                    login: "mominaiqbal-dev".into()
+                    login: "reesecooper121".into()
                 })
             },
         );
@@ -238,13 +256,13 @@ mod tests {
         assert_eq!(
             rx.recv().await.unwrap(),
             Issue {
-                typename: IssueKind::PullRequest,
-                number: 4062,
-                title: "Corrige error en validación de login".into(),
-                url: "https://github.com/octocat/Hello-World/pull/4062".into(),
-                body: "Se realiza una prueba para la validación del error presentado durante el login.".into(),
+                typename: IssueKind::Issue,
+                number: 2356,
+                title: "Terraform AWS CODE".into(),
+                url: "https://github.com/octocat/Hello-World/issues/2356".into(),
+                body: "terraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 4.0\"\n    }\n  }\n}\n\n# Configure the AWS Provider\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\n# Create a VPC\nresource \"aws_vpc\" \"example\" {\n  cidr_block = \"10.0.0.0/16\"\n} provider \"aws\" {\n  shared_config_files      = [\"/Users/tf_user/.aws/conf\"]\n  shared_credentials_files = [\"/Users/tf_user/.aws/creds\"]\n  profile                  = \"customprofile\"\n} provider \"aws\" {\n  assume_role {\n    role_arn                = \"arn:aws:iam::123456789012:role/ROLE_NAME\"\n    session_name            = \"SESSION_NAME\"\n    web_identity_token_file = \"/Users/tf_user/secrets/web-identity-token\"\n  }\n} provider \"aws\" {\n  profile = \"customprofile\"\n} export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\n$ export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\n$ export AWS_DEFAULT_REGION=us-west-2 $Env:<variable-name> = \"<new-value>\"Get-Member : You must specify an object for the Get-Member cmdlet.\nAt line:1 char:12\n+ $env:foo | Get-Member\n+            ~~~~~~~~~~\n    + CategoryInfo          : CloseError: (:) [Get-Member], InvalidOperationException\n    + FullyQualifiedErrorId : NoObjectInGetMember,Microsoft.PowerShell.Commands.GetMemberCommand $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'4 $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'".into(),
                 author: Some(User {
-                    login: "ricardocasta".into()
+                    login: "hitesh7353871909".into()
                 })
             },
         );
@@ -253,11 +271,13 @@ mod tests {
             rx.recv().await.unwrap(),
             Issue {
                 typename: IssueKind::PullRequest,
-                number: 4061,
-                title: "Fixes #1: Add simple greeting function".into(),
-                url: "https://github.com/octocat/Hello-World/pull/4061".into(),
-                body: "This PR addresses issue #1 by adding a greetWorld() function that returns 'Hello, World!' to make the repository more welcoming to new developers.\n\n## Changes Made:\n- Added hello.js file with greetWorld() function\n- Function returns the string 'Hello, World!' as requested\n- Included JSDoc documentation for clarity\n- Added module export functionality\n- Included example usage when run directly\n\n## Testing:\nThe function can be tested by running:\n```bash\nnode hello.js\n```\n\nThis implementation makes the repository more accessible and welcoming to new developers learning to code.".into(),
-                author: None,
+                number: 2648,
+                title: "changed a bit of code".into(),
+                url: "https://github.com/octocat/Hello-World/pull/2648".into(),
+                body: "i made changes".into(),
+                author: Some(User {
+                    login: "codeblue1230".into()
+                })
             },
         );
 

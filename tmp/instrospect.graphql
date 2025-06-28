@@ -1,5 +1,5 @@
 query {
-  __type(name: "Comment") {
+  __type(name: "SearchResultItem") {
     name
     kind
     description
