@@ -25,7 +25,7 @@ query($query:String!, $count:Int!, $after:String) {
       }
       textMatches {
         property
-        highlights {
+        matches: highlights {
           text
         }
       }

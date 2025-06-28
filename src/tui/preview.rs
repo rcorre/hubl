@@ -12,7 +12,7 @@ use syntect::{
     parsing::SyntaxSet,
 };
 
-use crate::github::code::{SearchItem, TextMatch};
+use crate::github::{code::SearchItem, TextMatch};
 
 const ANSI_THEME: &[u8] = include_bytes!("ansi.tmTheme");
 
@@ -150,10 +150,8 @@ impl PreviewCache {
 fn matching_strings(matches: &Vec<TextMatch>) -> HashSet<&str> {
     let mut set = HashSet::new();
     for m in matches {
-        let fragment = &m.fragment;
         for m in &m.matches {
-            let (start, end) = m.indices;
-            set.insert(&fragment[start..end]);
+            set.insert(m.text.as_str());
         }
     }
     set

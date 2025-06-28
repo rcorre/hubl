@@ -16,7 +16,7 @@
           "textMatches": [
             {
               "property": "title",
-              "highlights": [
+              "matches": [
                 {
                   "text": "CODE"
                 }
@@ -38,7 +38,7 @@
           "textMatches": [
             {
               "property": "title",
-              "highlights": [
+              "matches": [
                 {
                   "text": "code"
                 }

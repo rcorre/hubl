@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use super::Github;
+use super::{Github, TextMatch};
 use anyhow::{Context, Result};
 use base64::prelude::*;
 use serde::Deserialize;
@@ -12,16 +12,6 @@ pub struct SearchRepository {
     pub full_name: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-pub struct Match {
-    pub indices: (usize, usize),
-}
-
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-pub struct TextMatch {
-    pub fragment: String,
-    pub matches: Vec<Match>,
-}
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchItem {
@@ -260,8 +250,9 @@ mod tests {
                         full_name: format!("{name}repo"),
                     },
                     text_matches: vec![TextMatch {
-                        fragment: "the fragment".into(),
-                        matches: vec![Match { indices: (10, 20) }]
+                        matches: vec![crate::github::Match {
+                            text: "stuff".into()
+                        }]
                     }],
                 },
             );

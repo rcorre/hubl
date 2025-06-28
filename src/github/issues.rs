@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::SystemTime};
 
-use super::Github;
+use super::{Github, TextMatch};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tracing;
@@ -54,16 +54,6 @@ struct IssueEdge {
     text_matches: Vec<TextMatch>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-struct TextMatch {
-    property: String,
-    highlights: Vec<Highlight>,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-struct Highlight {
-    text: String,
-}
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
