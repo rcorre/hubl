@@ -702,6 +702,7 @@ dependencies = [
  "ratatui",
  "reqwest",
  "serde",
+ "serde_json",
  "syntect",
  "tokio",
  "tracing",

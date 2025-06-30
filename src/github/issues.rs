@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::SystemTime};
 
 use super::{Github, TextMatch};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use tracing;
 
@@ -53,7 +53,6 @@ struct IssueEdge {
     node: Issue,
     text_matches: Vec<TextMatch>,
 }
-
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -135,7 +134,9 @@ async fn search_issues_task(
         let resp = client.execute(req).await?;
         tracing::trace!("got response: {resp:?}");
 
-        let results: IssueSearchResponse = resp.json().await?;
+        let response_text = resp.text().await?;
+        let results: IssueSearchResponse = serde_json::from_str(&response_text)
+            .with_context(|| format!("Failed to parse JSON response: {response_text}"))?;
         tracing::trace!("parsed response: {results:#?}");
 
         for edge in results.data.search.edges {
@@ -223,7 +224,7 @@ mod tests {
                 title: "LICENSE-CODE".into(),
                 url: "https://github.com/octocat/Hello-World/issues/3556".into(),
                 body: "".into(),
-                author: Some(User{
+                author: Some(User {
                     login: "dikehtaw".into()
                 })
             },

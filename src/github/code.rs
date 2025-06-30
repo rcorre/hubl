@@ -101,7 +101,9 @@ async fn search_code_task(
             continue;
         }
 
-        let results: SearchResponse = resp.json().await?;
+        let response_text = resp.text().await?;
+        let results: SearchResponse = serde_json::from_str(&response_text)
+            .with_context(|| format!("Failed to parse JSON response: {response_text}"))?;
 
         if results.items.is_empty() {
             tracing::info!("no items remain, ending code search");
@@ -145,7 +147,9 @@ async fn item_content_task(
             continue;
         }
 
-        let content: ContentResponse = resp.json().await?;
+        let response_text = resp.text().await?;
+        let content: ContentResponse = serde_json::from_str(&response_text)
+            .with_context(|| format!("Failed to parse JSON response: {response_text}"))?;
         let data = BASE64_STANDARD.decode(content.content.replace("\n", ""))?;
         let body = String::from_utf8(data)?;
 
