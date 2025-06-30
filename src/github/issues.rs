@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::SystemTime};
 
 use super::{Github, TextMatch};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use tracing;
 
@@ -20,9 +20,16 @@ struct IssueQuery {
     variables: IssueQueryVariables,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-struct IssueSearchResponse {
-    data: IssueSearchData,
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+struct IssueSearchError {
+    message: String,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+enum IssueSearchResponse {
+    Ok { data: IssueSearchData },
+    Err { errors: Vec<IssueSearchError> },
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
@@ -139,17 +146,22 @@ async fn search_issues_task(
             .with_context(|| format!("Failed to parse JSON response: {response_text}"))?;
         tracing::trace!("parsed response: {results:#?}");
 
-        for edge in results.data.search.edges {
+        let data = match results {
+            IssueSearchResponse::Ok { data } => data,
+            IssueSearchResponse::Err { errors } => bail!("Issue search failed: {errors:?}"),
+        };
+
+        for edge in data.search.edges {
             callback(edge.node);
         }
 
-        if !results.data.search.page_info.has_next_page {
+        if !data.search.page_info.has_next_page {
             tracing::info!("no items remain, ending issue search");
             return Ok(());
         }
 
-        after = results.data.search.page_info.end_cursor;
-        await_rate_limit(&results.data.rate_limit).await?;
+        after = data.search.page_info.end_cursor;
+        await_rate_limit(&data.rate_limit).await?;
     }
     Ok(())
 }
