@@ -113,7 +113,7 @@ async fn await_rate_limit(r: &RateLimit) -> Result<()> {
 async fn search_issues_task(
     github: Github,
     term: String,
-    max_pages: usize,
+    mut recv: mpsc::Receiver<u32>,
     send: mpsc::Sender<Issue>,
 ) -> Result<()> {
     tracing::debug!("starting issue search task: {term}");
@@ -121,7 +121,7 @@ async fn search_issues_task(
     let url = github.host + "/graphql";
     let mut after = "".to_string();
 
-    for _ in 1..=max_pages {
+    while let Some(count) = recv.recv().await {
         let req = client
             .request(reqwest::Method::POST, &url)
             .bearer_auth(&github.token)
@@ -131,7 +131,7 @@ async fn search_issues_task(
                 variables: IssueQueryVariables {
                     // TODO: &str
                     query: term.clone(),
-                    count: 100,
+                    count,
                     after: after.clone(),
                 },
             })
@@ -166,15 +166,20 @@ async fn search_issues_task(
     Ok(())
 }
 
-pub fn search_issues(github: Github, term: &str, max_pages: usize, send: mpsc::Sender<Issue>) {
+// Start searching for issues.
+// recv sends a request for N issues
+// send sends the results for that request
+pub fn search_issues(
+    github: Github,
+    term: &str,
+    recv: mpsc::Receiver<u32>,
+    send: mpsc::Sender<Issue>,
+) {
     tracing::debug!("starting issue search: {term}");
     let term = term.to_string();
-    tokio::spawn(async move {
-        search_issues_task(github, term, max_pages, send)
-            .await
-            .unwrap()
-    });
+    tokio::spawn(async move { search_issues_task(github, term, recv, send).await.unwrap() });
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -213,11 +218,13 @@ mod tests {
             token: "token".to_string(),
         };
 
-        let (tx, mut rx) = mpsc::channel(8);
-        search_issues(github, "foo", 4, tx);
+        let (recv_tx, recv_rx) = mpsc::channel(8);
+        let (resp_tx, mut resp_rx) = mpsc::channel(8);
+        search_issues(github, "foo", recv_rx, resp_tx);
 
+        recv_tx.send(2).await.unwrap();
         assert_eq!(
-            rx.recv().await.unwrap(),
+            resp_rx.recv().await.unwrap(),
             Issue {
                 typename: IssueKind::Issue,
                 number: 3556,
@@ -231,7 +238,7 @@ mod tests {
         );
 
         assert_eq!(
-            rx.recv().await.unwrap(),
+            resp_rx.recv().await.unwrap(),
             Issue {
                 typename: IssueKind::Issue,
                 number: 3564,
@@ -244,8 +251,9 @@ mod tests {
             },
         );
 
+        recv_tx.send(2).await.unwrap();
         assert_eq!(
-            rx.recv().await.unwrap(),
+            resp_rx.recv().await.unwrap(),
             Issue {
                 typename: IssueKind::Issue,
                 number: 2356,
@@ -259,7 +267,7 @@ mod tests {
         );
 
         assert_eq!(
-            rx.recv().await.unwrap(),
+            resp_rx.recv().await.unwrap(),
             Issue {
                 typename: IssueKind::PullRequest,
                 number: 2648,
@@ -273,7 +281,7 @@ mod tests {
         );
 
         // all pages done, should close
-        assert!(rx.recv().await.is_none());
+        assert!(resp_rx.recv().await.is_none());
 
         // Assert all mocks were called
         for mock in mocks {

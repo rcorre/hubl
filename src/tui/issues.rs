@@ -12,13 +12,14 @@ use ratatui::{
     widgets::{Block, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
-use tokio::sync::mpsc::{self, Receiver};
+use tokio::sync::mpsc::{self, Receiver, Sender};
 
 pub struct App {
     event_stream: EventStream,
     exit: bool,
     table_state: TableState,
     issues: Vec<Issue>,
+    tx: Sender<u32>,
     rx: Receiver<Issue>,
     line_input: LineInput,
     highlighter: MarkdownHighlighter,
@@ -26,8 +27,9 @@ pub struct App {
 
 impl App {
     pub fn new(github: Github, cli: QueryArgs) -> Result<Self> {
-        let (tx, rx) = mpsc::channel(16);
-        issues::search_issues(github.clone(), &cli.to_query(), cli.pages, tx);
+        let (req_tx, req_rx) = mpsc::channel(16);
+        let (resp_tx, resp_rx) = mpsc::channel(16);
+        issues::search_issues(github.clone(), &cli.to_query(), req_rx, resp_tx);
 
         Ok(Self {
             event_stream: EventStream::default(),
@@ -36,11 +38,13 @@ impl App {
             line_input: LineInput::default(),
             highlighter: MarkdownHighlighter::default(),
             issues: Vec::new(),
-            rx,
+            tx: req_tx,
+            rx: resp_rx,
         })
     }
 
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
+        self.tx.send(32).await?; // TODO: pick size based on visible rows
         while !self.exit {
             terminal.draw(|frame| self.draw(frame).unwrap())?;
             self.handle_events().await?;
@@ -105,20 +109,20 @@ impl App {
                 let event = event.context("Event stream closed")??;
                 match event {
                     Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                        self.handle_key_event(key_event)
+                        self.handle_key_event(key_event).await?
                     }
                     _ => {}
                 };
             },
             Some(issue) = self.rx.recv() => {
-                tracing::debug!("Got issue");
+                tracing::debug!("Pushing issue into list");
                 self.issues.push(issue);
             }
         }
         Ok(())
     }
 
-    fn handle_key_event(&mut self, key_event: KeyEvent) {
+    async fn handle_key_event(&mut self, key_event: KeyEvent) -> Result<()> {
         match key_event.code {
             KeyCode::Esc => {
                 tracing::debug!("Exit requested");
@@ -132,11 +136,21 @@ impl App {
                 tracing::debug!("Selecting previous");
                 self.table_state.select_previous()
             }
-            KeyCode::Char('n') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                tracing::debug!("Selecting next");
-                self.table_state.select_next()
+            KeyCode::Char('j') => {
+                if self
+                    .table_state
+                    .selected()
+                    .is_some_and(|i| i >= self.issues.len() - 1)
+                {
+                    tracing::debug!("Requesting more items");
+                    self.tx.send(32).await?; // TODO: request size based on visible rows
+                } else {
+                    tracing::debug!("Selecting next");
+                    self.table_state.select_next()
+                }
             }
             _ => {}
         }
+        Ok(())
     }
 }
