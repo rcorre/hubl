@@ -1,8 +1,9 @@
-use std::{sync::Arc, time::SystemTime};
+use std::time::SystemTime;
 
 use super::Github;
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
+use tokio::sync::mpsc;
 use tracing;
 
 const ISSUE_GRAPHQL: &str = include_str!("search.graphql");
@@ -113,7 +114,7 @@ async fn search_issues_task(
     github: Github,
     term: String,
     max_pages: usize,
-    callback: Arc<(dyn Fn(Issue) + Send + Sync)>,
+    send: mpsc::Sender<Issue>,
 ) -> Result<()> {
     tracing::debug!("starting issue search task: {term}");
     let client = reqwest::Client::new();
@@ -151,7 +152,7 @@ async fn search_issues_task(
         };
 
         for edge in data.search.edges {
-            callback(edge.node);
+            send.send(edge.node).await?;
         }
 
         if !data.search.page_info.has_next_page {
@@ -165,16 +166,11 @@ async fn search_issues_task(
     Ok(())
 }
 
-pub fn search_issues(
-    github: Github,
-    term: &str,
-    max_pages: usize,
-    callback: Arc<(dyn Fn(Issue) + Sync + Send)>,
-) {
+pub fn search_issues(github: Github, term: &str, max_pages: usize, send: mpsc::Sender<Issue>) {
     tracing::debug!("starting issue search: {term}");
     let term = term.to_string();
     tokio::spawn(async move {
-        search_issues_task(github, term, max_pages, callback)
+        search_issues_task(github, term, max_pages, send)
             .await
             .unwrap()
     });
@@ -218,14 +214,7 @@ mod tests {
         };
 
         let (tx, mut rx) = mpsc::channel(8);
-        search_issues(
-            github,
-            "foo",
-            4,
-            Arc::new(move |res| {
-                tx.try_send(res).unwrap();
-            }),
-        );
+        search_issues(github, "foo", 4, tx);
 
         assert_eq!(
             rx.recv().await.unwrap(),

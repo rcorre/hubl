@@ -6,69 +6,43 @@ use crate::QueryArgs;
 use anyhow::{Context, Result};
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use futures::{FutureExt as _, StreamExt as _};
-use nucleo::{
-    pattern::{CaseMatching, Normalization},
-    Nucleo,
-};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Style, Stylize},
     widgets::{Block, Paragraph, Row, Table, TableState},
     DefaultTerminal, Frame,
 };
-use std::sync::Arc;
 use tokio::sync::mpsc::{self, Receiver};
 
 pub struct App {
     event_stream: EventStream,
     exit: bool,
     table_state: TableState,
-    nucleo: Nucleo<Issue>,
-    nucleo_rx: Receiver<()>,
+    issues: Vec<Issue>,
+    rx: Receiver<Issue>,
     line_input: LineInput,
     highlighter: MarkdownHighlighter,
 }
 
 impl App {
     pub fn new(github: Github, cli: QueryArgs) -> Result<Self> {
-        let (nucleo_tx, nucleo_rx) = mpsc::channel(1);
-        let nucleo = Nucleo::new(
-            nucleo::Config::DEFAULT,
-            Arc::new(move || {
-                // if there's already a value in the channel, we've already got a pending redraw
-                let _ = nucleo_tx.try_send(());
-            }),
-            None,
-            1,
-        );
-        let injector = nucleo.injector();
-        issues::search_issues(
-            github.clone(),
-            &cli.to_query(),
-            cli.pages,
-            Arc::new(move |result| {
-                injector.push(result, |item, columns| {
-                    columns[0] = item.title.clone().into();
-                });
-            }),
-        );
+        let (tx, rx) = mpsc::channel(16);
+        issues::search_issues(github.clone(), &cli.to_query(), cli.pages, tx);
 
         Ok(Self {
             event_stream: EventStream::default(),
             exit: false,
             table_state: TableState::default().with_selected(Some(0)),
-            nucleo,
-            nucleo_rx,
             line_input: LineInput::default(),
             highlighter: MarkdownHighlighter::default(),
+            issues: Vec::new(),
+            rx,
         })
     }
 
-    /// runs the application's main loop until the user quits
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         while !self.exit {
             terminal.draw(|frame| self.draw(frame).unwrap())?;
-            self.nucleo.tick(10);
             self.handle_events().await?;
         }
         Ok(())
@@ -91,22 +65,19 @@ impl App {
 
         self.line_input.draw(frame, input_area);
 
-        let snap = self.nucleo.snapshot();
-        if snap.matched_item_count() > 0 {
-            let table = Table::new(
-                snap.matched_items(0..snap.matched_item_count())
-                    .map(|item| {
-                        Row::new(vec![
-                            // item.data.number.to_string().as_str(),
-                            item.data.title.as_str(),
-                        ])
-                    }),
-                &[Constraint::Max(32), Constraint::Fill(1)],
-            )
-            .row_highlight_style(Style::new().italic())
-            .highlight_symbol(">");
-            frame.render_stateful_widget(table, search_area, &mut self.table_state);
+        if self.issues.is_empty() {
+            return Ok(());
         }
+
+        let table = Table::new(
+            self.issues
+                .iter()
+                .map(|i| Row::new(vec![i.number.to_string(), i.title.clone()])),
+            &[Constraint::Max(8), Constraint::Fill(1)],
+        )
+        .row_highlight_style(Style::new().italic())
+        .highlight_symbol(">");
+        frame.render_stateful_widget(table, search_area, &mut self.table_state);
 
         let idx = match self.table_state.selected() {
             Some(idx) => idx,
@@ -116,11 +87,9 @@ impl App {
             }
         };
 
-        let Some(item) = snap.get_matched_item(idx as u32) else {
-            return Ok(());
-        };
+        let item = &self.issues[idx];
 
-        let preview = Paragraph::new(self.highlighter.highlight(item.data.body.as_str())?)
+        let preview = Paragraph::new(self.highlighter.highlight(item.body.as_str())?)
             .block(Block::bordered());
         frame.render_widget(preview, preview_area);
         Ok(())
@@ -141,27 +110,15 @@ impl App {
                     _ => {}
                 };
             },
-            Some(()) = self.nucleo_rx.recv() => {
-                tracing::debug!("Redrawing for nucleo update");
+            Some(issue) = self.rx.recv() => {
+                tracing::debug!("Got issue");
+                self.issues.push(issue);
             }
         }
         Ok(())
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match self.line_input.handle_key_event(key_event) {
-            super::input::InputResult::Unhandled => {}
-            super::input::InputResult::Handled => return,
-            super::input::InputResult::PatternChanged => {
-                self.nucleo.pattern.reparse(
-                    0,
-                    self.line_input.pattern(),
-                    CaseMatching::Smart,
-                    Normalization::Smart,
-                    true,
-                );
-            }
-        }
         match key_event.code {
             KeyCode::Esc => {
                 tracing::debug!("Exit requested");
@@ -171,14 +128,9 @@ impl App {
                 tracing::debug!("Exit requested");
                 self.exit = true;
             }
-            KeyCode::Char('p') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                if self.table_state.selected().unwrap_or_default() == 0 {
-                    tracing::debug!("Selecting last");
-                    self.table_state.select_last();
-                } else {
-                    tracing::debug!("Selecting previous");
-                    self.table_state.select_previous()
-                }
+            KeyCode::Char('k') => {
+                tracing::debug!("Selecting previous");
+                self.table_state.select_previous()
             }
             KeyCode::Char('n') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                 tracing::debug!("Selecting next");
