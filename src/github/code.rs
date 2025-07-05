@@ -12,7 +12,6 @@ pub struct SearchRepository {
     pub full_name: String,
 }
 
-
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub struct SearchItem {
     pub url: String,
@@ -222,7 +221,7 @@ mod tests {
                 .with_status(200)
                 .with_header("x-ratelimit-remaining", "10")
                 .with_body(
-                    &std::fs::read_to_string(format!("testdata/search{}.json", page)).unwrap(),
+                    std::fs::read_to_string(format!("testdata/search{}.json", page)).unwrap(),
                 )
                 .create_async()
                 .await;
@@ -282,7 +281,7 @@ mod tests {
                 .mock("GET", format!("/content/foo{}", i).as_str())
                 .with_status(200)
                 .with_header("x-ratelimit-remaining", "10")
-                .with_body(&format!(
+                .with_body(format!(
                     r#"{{"content": "{}"}}"#,
                     BASE64_STANDARD.encode(format!("body{}", i))
                 ))

@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::SystemTime};
 
-use super::{Github, TextMatch};
+use super::Github;
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use tracing;
@@ -58,7 +58,6 @@ struct IssueSearchBody {
 #[serde(rename_all = "camelCase")]
 struct IssueEdge {
     node: Issue,
-    text_matches: Vec<TextMatch>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
@@ -207,7 +206,7 @@ mod tests {
                 )))
                 .with_status(200)
                 .with_header("content-type", "application/json")
-                .with_body(&std::fs::read_to_string(file).unwrap())
+                .with_body(std::fs::read_to_string(file).unwrap())
                 .create_async()
                 .await;
             mocks.push(mock);

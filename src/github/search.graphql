@@ -23,12 +23,6 @@ query($query:String!, $count:Int!, $after:String) {
           }
         }
       }
-      textMatches {
-        property
-        matches: highlights {
-          text
-        }
-      }
     }
     issueCount
     pageInfo {
