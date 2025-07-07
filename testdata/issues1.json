@@ -1,50 +1,26 @@
 {
   "data": {
     "search": {
-      "edges": [
+      "nodes": [
         {
-          "node": {
-            "__typename": "Issue",
-            "number": 3556,
-            "title": "LICENSE-CODE",
-            "url": "https://github.com/octocat/Hello-World/issues/3556",
-            "body": "",
-            "author": {
-              "login": "dikehtaw"
-            }
-          },
-          "textMatches": [
-            {
-              "property": "title",
-              "matches": [
-                {
-                  "text": "CODE"
-                }
-              ]
-            }
-          ]
+          "__typename": "Issue",
+          "number": 3556,
+          "title": "LICENSE-CODE",
+          "url": "https://github.com/octocat/Hello-World/issues/3556",
+          "body": "",
+          "author": {
+            "login": "dikehtaw"
+          }
         },
         {
-          "node": {
-            "__typename": "Issue",
-            "number": 3564,
-            "title": "CODE OF. THE ICENSES",
-            "url": "https://github.com/octocat/Hello-World/issues/3564",
-            "body": "[interviews.docx](https://github.com/user-attachments/files/18794937/interviews.docx)",
-            "author": {
-              "login": "reesecooper121"
-            }
-          },
-          "textMatches": [
-            {
-              "property": "title",
-              "matches": [
-                {
-                  "text": "CODE"
-                }
-              ]
-            }
-          ]
+          "__typename": "Issue",
+          "number": 3564,
+          "title": "CODE OF. THE ICENSES",
+          "url": "https://github.com/octocat/Hello-World/issues/3564",
+          "body": "[interviews.docx](https://github.com/user-attachments/files/18794937/interviews.docx)",
+          "author": {
+            "login": "reesecooper121"
+          }
         }
       ],
       "issueCount": 79,

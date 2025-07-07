@@ -1,26 +1,24 @@
 query($query:String!, $count:Int!, $after:String) {
   search(query: $query, type: ISSUE, first: $count, after: $after) {
-    edges {
-      node {
-        ... on Issue {
-          __typename
-          number
-          title
-          url
-          body
-          author {
-            login
-          }
+    nodes {
+      ... on Issue {
+        __typename
+        number
+        title
+        url
+        body
+        author {
+          login
         }
-        ... on PullRequest {
-          __typename
-          number
-          title
-          url
-          body
-          author {
-            login
-          }
+      }
+      ... on PullRequest {
+        __typename
+        number
+        title
+        url
+        body
+        author {
+          login
         }
       }
     }

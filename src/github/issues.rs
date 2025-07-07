@@ -50,16 +50,11 @@ struct PageInfo {
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 struct IssueSearchBody {
-    edges: Vec<IssueEdge>,
+    nodes: Vec<Issue>,
     issue_count: u32,
     page_info: PageInfo,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-struct IssueEdge {
-    node: Issue,
-}
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -151,9 +146,7 @@ async fn search_issues_task(
             IssueSearchResponse::Err { errors } => bail!("Issue search failed: {errors:?}"),
         };
 
-        // TODO: get issues instead of nodes
-        send.send(data.search.edges.into_iter().map(|x| x.node).collect())
-            .await?;
+        send.send(data.search.nodes).await?;
 
         if !data.search.page_info.has_next_page {
             tracing::info!("no items remain, ending issue search");
