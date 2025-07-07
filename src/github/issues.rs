@@ -225,59 +225,55 @@ mod tests {
         recv_tx.send(2).await.unwrap();
         assert_eq!(
             resp_rx.recv().await.unwrap(),
-            Issue {
-                typename: IssueKind::Issue,
-                number: 3556,
-                title: "LICENSE-CODE".into(),
-                url: "https://github.com/octocat/Hello-World/issues/3556".into(),
-                body: "".into(),
-                author: Some(User {
-                    login: "dikehtaw".into()
-                })
-            },
-        );
-
-        assert_eq!(
-            resp_rx.recv().await.unwrap(),
-            Issue {
-                typename: IssueKind::Issue,
-                number: 3564,
-                title: "CODE OF. THE ICENSES".into(),
-                url: "https://github.com/octocat/Hello-World/issues/3564".into(),
-                body: "[interviews.docx](https://github.com/user-attachments/files/18794937/interviews.docx)".into(),
-                author: Some(User {
-                    login: "reesecooper121".into()
-                })
-            },
+            vec![
+                Issue {
+                    typename: IssueKind::Issue,
+                    number: 3556,
+                    title: "LICENSE-CODE".into(),
+                    url: "https://github.com/octocat/Hello-World/issues/3556".into(),
+                    body: "".into(),
+                    author: Some(User {
+                        login: "dikehtaw".into()
+                    })
+                },
+                Issue {
+                    typename: IssueKind::Issue,
+                    number: 3564,
+                    title: "CODE OF. THE ICENSES".into(),
+                    url: "https://github.com/octocat/Hello-World/issues/3564".into(),
+                    body: "[interviews.docx](https://github.com/user-attachments/files/18794937/interviews.docx)".into(),
+                    author: Some(User {
+                        login: "reesecooper121".into()
+                    })
+                },
+            ]
         );
 
         recv_tx.send(2).await.unwrap();
         assert_eq!(
             resp_rx.recv().await.unwrap(),
-            Issue {
-                typename: IssueKind::Issue,
-                number: 2356,
-                title: "Terraform AWS CODE".into(),
-                url: "https://github.com/octocat/Hello-World/issues/2356".into(),
-                body: "terraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 4.0\"\n    }\n  }\n}\n\n# Configure the AWS Provider\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\n# Create a VPC\nresource \"aws_vpc\" \"example\" {\n  cidr_block = \"10.0.0.0/16\"\n} provider \"aws\" {\n  shared_config_files      = [\"/Users/tf_user/.aws/conf\"]\n  shared_credentials_files = [\"/Users/tf_user/.aws/creds\"]\n  profile                  = \"customprofile\"\n} provider \"aws\" {\n  assume_role {\n    role_arn                = \"arn:aws:iam::123456789012:role/ROLE_NAME\"\n    session_name            = \"SESSION_NAME\"\n    web_identity_token_file = \"/Users/tf_user/secrets/web-identity-token\"\n  }\n} provider \"aws\" {\n  profile = \"customprofile\"\n} export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\n$ export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\n$ export AWS_DEFAULT_REGION=us-west-2 $Env:<variable-name> = \"<new-value>\"Get-Member : You must specify an object for the Get-Member cmdlet.\nAt line:1 char:12\n+ $env:foo | Get-Member\n+            ~~~~~~~~~~\n    + CategoryInfo          : CloseError: (:) [Get-Member], InvalidOperationException\n    + FullyQualifiedErrorId : NoObjectInGetMember,Microsoft.PowerShell.Commands.GetMemberCommand $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'4 $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'".into(),
-                author: Some(User {
-                    login: "hitesh7353871909".into()
-                })
-            },
-        );
-
-        assert_eq!(
-            resp_rx.recv().await.unwrap(),
-            Issue {
-                typename: IssueKind::PullRequest,
-                number: 2648,
-                title: "changed a bit of code".into(),
-                url: "https://github.com/octocat/Hello-World/pull/2648".into(),
-                body: "i made changes".into(),
-                author: Some(User {
-                    login: "codeblue1230".into()
-                })
-            },
+            vec![
+                Issue {
+                    typename: IssueKind::Issue,
+                    number: 2356,
+                    title: "Terraform AWS CODE".into(),
+                    url: "https://github.com/octocat/Hello-World/issues/2356".into(),
+                    body: "terraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 4.0\"\n    }\n  }\n}\n\n# Configure the AWS Provider\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\n# Create a VPC\nresource \"aws_vpc\" \"example\" {\n  cidr_block = \"10.0.0.0/16\"\n} provider \"aws\" {\n  shared_config_files      = [\"/Users/tf_user/.aws/conf\"]\n  shared_credentials_files = [\"/Users/tf_user/.aws/creds\"]\n  profile                  = \"customprofile\"\n} provider \"aws\" {\n  assume_role {\n    role_arn                = \"arn:aws:iam::123456789012:role/ROLE_NAME\"\n    session_name            = \"SESSION_NAME\"\n    web_identity_token_file = \"/Users/tf_user/secrets/web-identity-token\"\n  }\n} provider \"aws\" {\n  profile = \"customprofile\"\n} export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nexport AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nexport AWS_DEFAULT_REGION=us-west-2 $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\n$ export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\n$ export AWS_DEFAULT_REGION=us-west-2 $Env:<variable-name> = \"<new-value>\"Get-Member : You must specify an object for the Get-Member cmdlet.\nAt line:1 char:12\n+ $env:foo | Get-Member\n+            ~~~~~~~~~~\n    + CategoryInfo          : CloseError: (:) [Get-Member], InvalidOperationException\n    + FullyQualifiedErrorId : NoObjectInGetMember,Microsoft.PowerShell.Commands.GetMemberCommand $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'4 $Env:CompanyUri = 'https://internal.contoso.com'\n$Env:Path += ';C:\\Tools'".into(),
+                    author: Some(User {
+                        login: "hitesh7353871909".into()
+                    })
+                },
+                Issue {
+                    typename: IssueKind::PullRequest,
+                    number: 2648,
+                    title: "changed a bit of code".into(),
+                    url: "https://github.com/octocat/Hello-World/pull/2648".into(),
+                    body: "i made changes".into(),
+                    author: Some(User {
+                        login: "codeblue1230".into()
+                    })
+                },
+            ]
         );
 
         // all pages done, should close
