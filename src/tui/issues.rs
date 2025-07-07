@@ -14,15 +14,18 @@ use ratatui::{
 };
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
+const PAGE_SIZE: u32 = 16;
+
 pub struct App {
     event_stream: EventStream,
     exit: bool,
     table_state: TableState,
     issues: Vec<Issue>,
     tx: Sender<u32>,
-    rx: Receiver<Issue>,
+    rx: Receiver<Vec<Issue>>,
     line_input: LineInput,
     highlighter: MarkdownHighlighter,
+    pending_request: bool,
 }
 
 impl App {
@@ -40,11 +43,12 @@ impl App {
             issues: Vec::new(),
             tx: req_tx,
             rx: resp_rx,
+            pending_request: false,
         })
     }
 
     pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
-        self.tx.send(32).await?; // TODO: pick size based on visible rows
+        self.tx.send(PAGE_SIZE).await?; // TODO: pick size based on visible rows
         while !self.exit {
             terminal.draw(|frame| self.draw(frame).unwrap())?;
             self.handle_events().await?;
@@ -52,6 +56,7 @@ impl App {
         Ok(())
     }
 
+    // returns true if more results are needed
     fn draw(&mut self, frame: &mut Frame) -> Result<()> {
         tracing::debug!("Drawing");
         let [search_area, preview_area] = Layout::default()
@@ -76,12 +81,26 @@ impl App {
         let table = Table::new(
             self.issues
                 .iter()
-                .map(|i| Row::new(vec![i.number.to_string(), i.title.clone()])),
+                .map(|i| Row::new(vec![i.number.to_string(), i.title.clone()]))
+                .chain(std::iter::once(Row::new(vec![
+                    "...".to_string(),
+                    "loading".to_string(),
+                ]))),
             &[Constraint::Max(8), Constraint::Fill(1)],
         )
-        .row_highlight_style(Style::new().italic())
+        .row_highlight_style(Style::new().bold().reversed())
         .highlight_symbol(">");
         frame.render_stateful_widget(table, search_area, &mut self.table_state);
+
+        if self.table_state.offset() + search_area.height as usize >= self.issues.len()
+            && !self.pending_request
+        {
+            tracing::debug!("Requesting more items");
+            if self.tx.try_send(PAGE_SIZE).is_err() {
+                // TODO: watch
+                tracing::debug!("Queue full");
+            }
+        }
 
         let idx = match self.table_state.selected() {
             Some(idx) => idx,
@@ -91,11 +110,21 @@ impl App {
             }
         };
 
-        let item = &self.issues[idx];
+        let Some(item) = self.issues.get(idx) else {
+            return Ok(());
+        };
 
         let preview = Paragraph::new(self.highlighter.highlight(item.body.as_str())?)
             .block(Block::bordered());
         frame.render_widget(preview, preview_area);
+
+        tracing::trace!(
+            "offset={}, height={}, issues={}",
+            self.table_state.offset(),
+            search_area.height,
+            self.issues.len()
+        );
+
         Ok(())
     }
 
@@ -114,9 +143,10 @@ impl App {
                     _ => {}
                 };
             },
-            Some(issue) = self.rx.recv() => {
-                tracing::debug!("Pushing issue into list");
-                self.issues.push(issue);
+            Some(mut issues) = self.rx.recv() => {
+                self.pending_request = false;
+                self.issues.append(&mut issues);
+                tracing::debug!("Pushing issues into list, total issues: {}", self.issues.len());
             }
         }
         Ok(())
@@ -133,21 +163,12 @@ impl App {
                 self.exit = true;
             }
             KeyCode::Char('k') => {
-                tracing::debug!("Selecting previous");
-                self.table_state.select_previous()
+                self.table_state.select_previous();
+                tracing::debug!("Selected previous index: {:?}", self.table_state.selected());
             }
             KeyCode::Char('j') => {
-                if self
-                    .table_state
-                    .selected()
-                    .is_some_and(|i| i >= self.issues.len() - 1)
-                {
-                    tracing::debug!("Requesting more items");
-                    self.tx.send(32).await?; // TODO: request size based on visible rows
-                } else {
-                    tracing::debug!("Selecting next");
-                    self.table_state.select_next()
-                }
+                self.table_state.select_next();
+                tracing::debug!("Selected next index: {:?}", self.table_state.selected());
             }
             _ => {}
         }

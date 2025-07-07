@@ -114,7 +114,7 @@ async fn search_issues_task(
     github: Github,
     term: String,
     mut recv: mpsc::Receiver<u32>,
-    send: mpsc::Sender<Issue>,
+    send: mpsc::Sender<Vec<Issue>>,
 ) -> Result<()> {
     tracing::debug!("starting issue search task: {term}");
     let client = reqwest::Client::new();
@@ -151,9 +151,9 @@ async fn search_issues_task(
             IssueSearchResponse::Err { errors } => bail!("Issue search failed: {errors:?}"),
         };
 
-        for edge in data.search.edges {
-            send.send(edge.node).await?;
-        }
+        // TODO: get issues instead of nodes
+        send.send(data.search.edges.into_iter().map(|x| x.node).collect())
+            .await?;
 
         if !data.search.page_info.has_next_page {
             tracing::info!("no items remain, ending issue search");
@@ -173,7 +173,7 @@ pub fn search_issues(
     github: Github,
     term: &str,
     recv: mpsc::Receiver<u32>,
-    send: mpsc::Sender<Issue>,
+    send: mpsc::Sender<Vec<Issue>>,
 ) {
     tracing::debug!("starting issue search: {term}");
     let term = term.to_string();
