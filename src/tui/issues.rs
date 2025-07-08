@@ -26,6 +26,7 @@ pub struct App {
     line_input: LineInput,
     highlighter: MarkdownHighlighter,
     pending_request: bool,
+    editing_query: bool,
 }
 
 impl App {
@@ -44,6 +45,7 @@ impl App {
             tx: req_tx,
             rx: resp_rx,
             pending_request: false,
+            editing_query: false,
         })
     }
 
@@ -153,6 +155,28 @@ impl App {
     }
 
     async fn handle_key_event(&mut self, key_event: KeyEvent) -> Result<()> {
+        // these keys are handled regardless of whether we're editing the query
+        match key_event.code {
+            KeyCode::Esc => {
+                tracing::debug!("Exit requested");
+                self.exit = true;
+            }
+            KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                tracing::debug!("Exit requested");
+                self.exit = true;
+            }
+            KeyCode::Enter => {
+                self.editing_query = false;
+            }
+            _ => {}
+        }
+
+        if self.editing_query {
+            self.line_input.handle_key_event(key_event);
+            return Ok(());
+        }
+
+        // these keys are only handled if not editing the query
         match key_event.code {
             KeyCode::Esc => {
                 tracing::debug!("Exit requested");
@@ -169,6 +193,10 @@ impl App {
             KeyCode::Char('j') => {
                 self.table_state.select_next();
                 tracing::debug!("Selected next index: {:?}", self.table_state.selected());
+            }
+            KeyCode::Char('/') => {
+                tracing::debug!("Editing query");
+                self.editing_query = true;
             }
             _ => {}
         }

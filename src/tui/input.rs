@@ -12,28 +12,20 @@ pub struct LineInput {
     cursor_pos: usize,
 }
 
-pub enum InputResult {
-    Unhandled,
-    Handled,
-    PatternChanged,
-}
-
 impl LineInput {
-    pub fn handle_key_event(&mut self, key_event: KeyEvent) -> InputResult {
+    pub fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Left => {
                 tracing::debug!("Moving cursor left");
                 self.cursor_pos = self.cursor_pos.saturating_sub(1);
-                InputResult::Unhandled
             }
             KeyCode::Right => {
                 tracing::debug!("Moving cursor right");
                 self.cursor_pos = (self.cursor_pos + 1).min(self.pattern.len());
-                InputResult::Unhandled
             }
             KeyCode::Char('w') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                 if self.cursor_pos == 0 {
-                    return InputResult::Handled;
+                    return;
                 };
                 tracing::debug!(
                     "Deleting word from '{}' at {}",
@@ -50,24 +42,21 @@ impl LineInput {
                     self.cursor_pos = 0;
                     tracing::debug!("Cleared pattern");
                 }
-                InputResult::PatternChanged
             }
             KeyCode::Backspace => {
                 if self.cursor_pos == 0 {
-                    return InputResult::Handled;
+                    return;
                 };
                 self.cursor_pos -= 1;
                 let c = self.pattern.remove(self.cursor_pos);
                 tracing::debug!("Removed '{c}' from pattern, new pattern: {}", self.pattern);
-                InputResult::PatternChanged
             }
             KeyCode::Char(c) if (key_event.modifiers & !KeyModifiers::SHIFT).is_empty() => {
                 self.pattern.insert(self.cursor_pos, c);
                 self.cursor_pos += 1;
                 tracing::debug!("Updated filter pattern: {}", self.pattern);
-                InputResult::PatternChanged
             }
-            _ => InputResult::Unhandled,
+            _ => {}
         }
     }
 

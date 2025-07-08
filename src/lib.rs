@@ -13,9 +13,6 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Command {
-    /// Search code.
-    Code(QueryArgs),
-
     /// Search issues.
     Issues(QueryArgs),
 }

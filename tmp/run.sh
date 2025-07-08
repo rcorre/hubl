@@ -1,5 +1,6 @@
 args="$(cat $1)"
 
+
 jq '{"query": $query, "variables": .}' --rawfile query $1 $2 \
   | curl -v -s \
     -H "Authorization: bearer $(gh auth token)" \
